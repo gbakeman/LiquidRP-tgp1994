@@ -1,12 +1,11 @@
---[[ Gamemode got leaked. Old gamemode anyway hahahaha ]]--
--- CREATED BY JACKOOL (and darkrp base obviously)
+GM.Version = "2"
+GM.Name = "LiquidRP"
+GM.Author = "DarkRP Creators, Jackool and Deadman123/Derp, TGP1994"
 
+CUR = "$" --Removed?
+DeriveGamemode("sandbox")
 
-GM.Version = "1"
-GM.Name = "Liquid DarkRP"
-GM.Author = "Jackool + DarkRP Creators and Deadman123/Derp"
-
-CUR = "$"
+AddCSLuaFile("libraries/interfaceloader.lua")
 
 include("modules/von.lua") --Temporary until I figure out how to officially bundle lua modules
 AddCSLuaFile("modules/von.lua")
@@ -86,9 +85,7 @@ meta.GetName = meta.Name
 
 RPArrestedPlayers = {}
 
-DeriveGamemode("sandbox")
 AddCSLuaFile("libraries/fn.lua")
-AddCSLuaFile("sh_interfaceloader.lua")
 AddCSLuaFile("language_sh.lua")
 AddCSLuaFile("MakeThings.lua")
 AddCSLuaFile("addentities.lua")
@@ -112,11 +109,11 @@ DB = DB or {}
 GM.Config = GM.Config or {}
 GM.NoLicense = GM.NoLicense or {}
 
-include("_MySQL.lua")
+include("libraries/interfaceloader.lua")
+
+include("config/_MySQL.lua")
 include("config.lua")
 include("licenseweapons.lua")
-
-include("sh_interfaceloader.lua")
 
 include("chat.lua")
 include("admincc.lua")

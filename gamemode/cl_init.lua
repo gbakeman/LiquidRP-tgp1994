@@ -204,8 +204,8 @@ end
 GM.Config = {} -- config table
 
 include("config.lua")
-include("sh_interfaceloader.lua")
-include("client/help.lua")
+include("libraries/interfaceloader.lua")
+include("libraries/fn.lua")
 
 include("language_sh.lua")
 include("MakeThings.lua")
@@ -216,6 +216,8 @@ include("sh_animations.lua")
 include("cl_hud.lua")
 include("Workarounds.lua")
 include("shared/player_class.lua")
+include("client/help.lua")
+
 if UseFPP then
 	include("FPP/sh_settings.lua")
 	include("FPP/client/FPP_Menu.lua")
@@ -223,7 +225,7 @@ if UseFPP then
 	include("FPP/client/FPP_Buddies.lua")
 	include("FPP/sh_CPPI.lua")
 end
-include("libraries/fn.lua")
+
 LoadModules()
 
 LoadLiquidDarkRP()

@@ -1,7 +1,7 @@
 "Gamemode"
 {
 	"base"			"sandbox"
-    "title"			"LiquidRP"
+    	"title"			"LiquidRP"
 	"maps"			"^rp_"
 	"menusystem"	"1"
 }
