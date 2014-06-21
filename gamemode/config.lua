@@ -268,17 +268,6 @@ GM.Config.DefaultWeapons = {
 	"weapon_physgun"
 }
 
--- The list of modules that are disabled. Set to true to disable, false to enable.
--- Modules that are not in this list are enabled by default.
-GM.Config.DisabledModules = {
-	["afk"] = false,
-	["chatsounds"] = false,
-	["events"] = false,
-	["hungermod"] = true,
-	["playerscale"] = false,
-	["sleep"] = false
-}
-
 -- These are the default laws, they're unchangeable in-game.
 GM.Config.DefaultLaws = {
 	"Do not attack other citizens except in self-defence.",

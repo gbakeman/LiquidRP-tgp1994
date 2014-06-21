@@ -3,6 +3,24 @@ GM.Name = "Liquid DarkRP"
 GM.Author = "By Jackool + DarkRP creators and Deadman123/Derp"
 
 DeriveGamemode("sandbox")
+local function LoadModules()
+	local root = GM.FolderName.."/gamemode/modules/"
+
+	local _, folders = file.Find(root.."*", "LUA")
+
+	for _, folder in SortedPairs(folders, true) do
+		if DarkRP.disabledDefaults["modules"][folder] then continue end
+
+		for _, File in SortedPairs(file.Find(root .. folder .."/sh_*.lua", "LUA"), true) do
+			if File == "sh_interface.lua" then continue end
+			include(root.. folder .. "/" ..File)
+		end
+		for _, File in SortedPairs(file.Find(root .. folder .."/cl_*.lua", "LUA"), true) do
+			if File == "cl_interface.lua" then continue end
+			include(root.. folder .. "/" ..File)
+		end
+	end
+end
 util.PrecacheSound("earthquake.mp3")
 
 LDRP_DLC = {}
@@ -177,25 +195,6 @@ local function DisplayNotify(msg)
 end
 usermessage.Hook("_Notify", DisplayNotify)
 
-local function LoadModules()
-	local root = GM.FolderName.."/gamemode/modules/"
-
-	local _, folders = file.Find(root.."*", "LUA")
-
-	for _, folder in SortedPairs(folders, true) do
-		if GM.Config.DisabledModules[folder] then continue end
-
-		for _, File in SortedPairs(file.Find(root .. folder .."/sh_*.lua", "LUA"), true) do
-			if File == "sh_interface.lua" then continue end
-			include(root.. folder .. "/" ..File)
-		end
-		for _, File in SortedPairs(file.Find(root .. folder .."/cl_*.lua", "LUA"), true) do
-			if File == "cl_interface.lua" then continue end
-			include(root.. folder .. "/" ..File)
-		end
-	end
-end
-
 LocalPlayer().DarkRPVars = LocalPlayer().DarkRPVars or {}
 for k,v in pairs(player.GetAll()) do
 	v.DarkRPVars = v.DarkRPVars or {}
@@ -204,8 +203,11 @@ end
 GM.Config = {} -- config table
 
 include("config.lua")
-include("libraries/interfaceloader.lua")
 include("libraries/fn.lua")
+include("libraries/interfaceloader.lua")
+
+include("libraries/modificationloader.lua")
+LoadModules()
 
 include("language_sh.lua")
 include("MakeThings.lua")
@@ -225,8 +227,6 @@ if UseFPP then
 	include("FPP/client/FPP_Buddies.lua")
 	include("FPP/sh_CPPI.lua")
 end
-
-LoadModules()
 
 LoadLiquidDarkRP()
 
