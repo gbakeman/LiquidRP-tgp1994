@@ -6,7 +6,7 @@ local MaxMessages = CreateConVar("pchat_messagelimit", "250", FCVAR_ARCHIVE, "Th
 
 local Patterns = {"http://([%w%p]+)(....?)(%s*)", "http://([%w%p]+)%.(....?)(%s*)"}
 local Pictures = {["png"] = true, ["jpg"] = true, ["bmp"] = true, ["gif"] = true}
-local Fonts = {"DebugFixed", "DebugFixedSmall", "Default", "Marlett", "Trebuchet18", "Trebuchet24", "HudHintTextLarge", "HudHintTextSmall", "CenterPrintText", "HudSelectionText", "CloseCaption_Normal", "CloseCaption_Bold", "CloseCaption_BoldItalic", "ChatFont", "TargetID", "TargetIDSmall", "BudgetLabel", "DermaDefault", "DermaDefaultBold", "DermaLarge", "ScoreboardDefault", "ScoreboardDefaultTitle", "GModToolSubtitle", "GModToolHelp", "GModWorldtip"}
+local Fonts = {"DebugFixed", "DebugFixedSmall", "Default", "Marlett", "Trebuchet18", "Trebuchet24", "HudHintTextLarge", "HudHintTextSmall", "CenterPrintText", "HudSelectionText", "CloseCaption_Normal", "CloseCaption_Bold", "CloseCaption_BoldItalic", "ChatFont", "TargetID", "TargetIDSmall", "BudgetLabel", "DermaDefault", "DermaDefaultBold", "DermaLarge", "ScoreboardDefault", "ScoreboardDefaultTitle", "GModToolHelp", "GModWorldtip"}
 
 local ScreenScale = function(Num, IsX)
 	local Num = Num*((IsX and ScrW() or ScrH()) / (IsX and 640 or 480))

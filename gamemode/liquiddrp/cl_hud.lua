@@ -213,7 +213,7 @@ function LDRP.HUDPaint()
 	local LP = LocalPlayer()
 	if LP.InTut then return end
 	if !LP.DarkRPVars then
-		draw.SimpleTextOutlined( "Waiting for DarkRP information...","HUDNumber", ScrW()*.5, ScrH()*.5, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
+		draw.SimpleTextOutlined( "Waiting for DarkRP information...", "HUDNumber5", ScrW()*.5, ScrH()*.5, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
 		return
 	end
 	
@@ -378,7 +378,7 @@ function LDRP.CreateMeterHUD(text,time)
 	local function MeterHUDLocal()
 		draw.RoundedBox( 8, ScrW()*.5-LDRP.MeterLengthHalf, ScrH()-LDRP.MeterHeight-8, LDRP.MeterLength, LDRP.MeterHeight, Color( 9, 120, 245, 200 ) )
 		draw.RoundedBox( 8, ScrW()*.5-LDRP.MeterLengthHalf+4, ScrH()-LDRP.MeterHeight-8+4, (LDRP.MeterLength-8)*math.Clamp(((CurTime()-MeterStart)/time),.04,1), LDRP.MeterHeight-8, Color( 9, 170, 245, 180 ) )
-		draw.SimpleTextOutlined( text, "HUDNumber", ScrW()*.5, ScrH()-(LDRP.MeterHeight*.5)-8, Color(255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color(0,0,0) )
+		draw.SimpleTextOutlined( text, "HUDNumber5", ScrW()*.5, ScrH()-(LDRP.MeterHeight*.5)-8, Color(255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color(0,0,0) )
 	end
 	hook.Add("HUDPaint","Shows a progress meter",MeterHUDLocal)
 	
@@ -519,7 +519,7 @@ if !UseFadmin then
 			
 			draw.RoundedBox(6,4,4,892,50,Color(100,100,100,130))
 			draw.RoundedBox(6,6,6,888,46,Color(145,166,200,140))
-			draw.SimpleTextOutlined("Liquid DarkRP","HUDNumber",450,25,Color(98,144,217,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER, 1, Color(0,0,0,200) )
+			draw.SimpleTextOutlined("Liquid DarkRP", "HUDNumber5",450,25,Color(98,144,217,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER, 1, Color(0,0,0,200) )
 		end
 		B.BG:SetTitle("")
 		B.BG:ShowCloseButton(false)

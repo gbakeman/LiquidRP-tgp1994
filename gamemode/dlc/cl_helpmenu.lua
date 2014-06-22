@@ -29,7 +29,7 @@ function HelpPanel:Init()
 
 	self.title = vgui.Create("DLabel", self)
 	self.title:SetText(GAMEMODE.Name)
-	self.title:SetFont("HUDNumber")
+	self.title:SetFont("Trebuchet24")
 	self.title:SetPos(5, 0)
 	self.title:SetTextColor(Color(75, 150, 225))
 	self.title:SizeToContents()
@@ -55,7 +55,7 @@ function HelpPanel:FillHelpInfo()
 		self.vguiHelpCategories[k]:SetText(v.name)
 		self.vguiHelpCategories[k].OrigY = yoffset
 		self.vguiHelpCategories[k]:SetPos(5, yoffset)
-		self.vguiHelpCategories[k]:SetFont("GModToolSubtitle")
+		self.vguiHelpCategories[k]:SetFont("CloseCaption_Normal")
 		self.vguiHelpCategories[k]:SetColor(Color(140, 0, 0, 200))
 		self.vguiHelpCategories[k]:SetExpensiveShadow(2, Color(0,0,0,255))
 		self.vguiHelpCategories[k]:SizeToContents()
@@ -80,7 +80,7 @@ function HelpPanel:FillHelpInfo()
 			index = index + 1
 		end
 		
-		surface.SetFont("GModToolSubtitle")
+		surface.SetFont("CloseCaption_Normal")
 		local __w, cath = surface.GetTextSize("A")
 
 		yoffset = yoffset + (cath + 15) + labelCount * labelh

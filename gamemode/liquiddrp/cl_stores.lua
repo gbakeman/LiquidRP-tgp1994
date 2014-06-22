@@ -82,14 +82,14 @@ function LDRP_SH.OpenStoreMenu(name,model,saying,selltable,buytable)
 	Store.BG.Paint = function()
 		draw.RoundedBox(8,0,0,w,h,LDRP.ColorMod(20,20,20,10))
 		draw.RoundedBox(6,2,36,w-4,h-528,LDRP.ColorMod(30,30,30,30))
-		draw.SimpleTextOutlined( name,"HUDNumber", w*.5, h*.03, Color(170,170,170,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
+		draw.SimpleTextOutlined( name,"HUDNumber5", w*.5, h*.03, Color(170,170,170,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
 		draw.SimpleTextOutlined( saying,"Trebuchet24", w*.5+38, h-528, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
 		
 		draw.RoundedBox(6,2,h*.184,w-4,h-114,LDRP.ColorMod(30,30,30,30))
 		
-		draw.SimpleTextOutlined( "Selling","HUDNumber", w*.01, h*.23, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
+		draw.SimpleTextOutlined( "Selling","HUDNumber5", w*.01, h*.23, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
 		
-		draw.SimpleTextOutlined( "Buying","HUDNumber", w*.01, h*.62, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
+		draw.SimpleTextOutlined( "Buying","HUDNumber5", w*.01, h*.62, Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
 		
 	end
 	
@@ -139,7 +139,7 @@ function LDRP.RulesMenu()
 	Window.Paint = function()
 		draw.RoundedBox( 8, 0, 0, w, h, LDRP.ColorMod(-40,-40,-40,60) )
 		if Loading then
-			draw.SimpleTextOutlined("Loading Webpage", "HUDNumber", w*.5, h*.5, Color(255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color(0,0,0) )
+			draw.SimpleTextOutlined("Loading Webpage", "HUDNumber5", w*.5, h*.5, Color(255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color(0,0,0) )
 		end
 	end
 	Window:SetTitle("Rules")
@@ -233,7 +233,7 @@ function LDRP.BankMenu(ply,cmd,args)
 	
 	local BankLabel = vgui.Create("DLabel",MainBankBackground)
 	BankLabel:SetText("Bank")
-	BankLabel:SetFont("HUDNumber")
+	BankLabel:SetFont("HUDNumber5")
 	BankLabel:SetColor(Color(255,255,255,255))
 	BankLabel:SetPos(MainBankBackground:GetWide()*.45,-4)
 	BankLabel:SizeToContents()
@@ -288,7 +288,7 @@ function LDRP.BankMenu(ply,cmd,args)
 	
 	local InvLabel = vgui.Create("DLabel",MainBankBackground)
 	InvLabel:SetText("Inventory")
-	InvLabel:SetFont("HUDNumber")
+	InvLabel:SetFont("HUDNumber5")
 	InvLabel:SetColor(Color(255,255,255,255))
 	InvLabel:SetPos(MainBankBackground:GetWide()*.39,224)
 	InvLabel:SizeToContents()
@@ -358,9 +358,9 @@ function LDRP.BankMenu(ply,cmd,args)
 	local MoneyLabel = vgui.Create("DLabel",MainBankBackground)
 	MoneyLabel:SetPos(8,470)
 	MoneyLabel:SetText("                                   ")
-	MoneyLabel:SetFont("HUDNumber")
+	MoneyLabel:SetFont("HUDNumber5")
 	function MoneyLabel:Paint()
-		draw.SimpleTextOutlined("Balance: $" .. LocalPlayer().Bank["curcash"], "HUDNumber", 0, ScrH()*.02, Color(0,255,0), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, Color(0,0,0) )
+		draw.SimpleTextOutlined("Balance: $" .. LocalPlayer().Bank["curcash"], "HUDNumber5", 0, ScrH()*.02, Color(0,255,0), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER, 1, Color(0,0,0) )
 	end
 	MoneyLabel:SizeToContents()
 	

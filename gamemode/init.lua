@@ -7,6 +7,10 @@ DeriveGamemode("sandbox")
 
 AddCSLuaFile("libraries/interfaceloader.lua")
 AddCSLuaFile("libraries/modificationloader.lua")
+AddCSLuaFile("libraries/fn.lua")
+
+AddCSLuaFile("config/config.lua")
+AddCSLuaFile("config/addentities.lua")
 
 include("modules/von.lua") --Temporary until I figure out how to officially bundle lua modules
 AddCSLuaFile("modules/von.lua")
@@ -86,12 +90,9 @@ meta.GetName = meta.Name
 
 RPArrestedPlayers = {}
 
-AddCSLuaFile("libraries/fn.lua")
 AddCSLuaFile("language_sh.lua")
 AddCSLuaFile("MakeThings.lua")
-AddCSLuaFile("addentities.lua")
 AddCSLuaFile("cl_init.lua")
-AddCSLuaFile("config.lua")
 AddCSLuaFile("shared.lua")
 AddCSLuaFile("ammotypes.lua")
 AddCSLuaFile("cl_vgui.lua")
@@ -113,7 +114,7 @@ GM.NoLicense = GM.NoLicense or {}
 include("libraries/interfaceloader.lua")
 
 include("config/_MySQL.lua")
-include("config.lua")
+include("config/config.lua")
 include("licenseweapons.lua")
 
 include("libraries/modificationloader.lua")
@@ -130,7 +131,6 @@ include("entity.lua")
 
 include("Workarounds.lua")
 
-include("addentities.lua")
 include("ammotypes.lua")
 include("server/database.lua")
 MySQLite.initialize()
@@ -200,6 +200,10 @@ for _, folder in SortedPairs(folders, true) do
 		AddCSLuaFile(fol.. folder .. "/" ..File)
 	end
 end
+
+DarkRP.DARKRP_LOADING = true
+include("config/addentities.lua")
+DarkRP.DARKRP_LOADING = nil
 
 DarkRP.finish()
 

@@ -815,7 +815,7 @@ function InventoryTab()
 		
 		draw.RoundedBox(6,0,0,w,l,Color(0,150,200,80))
 		draw.RoundedBox(0,0,l*.01,w,l*.085,Color(250,250,250,220))
-		draw.SimpleTextOutlined("Inventory","HUDNumber",w*.5,l*.0425,Color(255,255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER, 2, Color(0,0,0,200) )
+		draw.SimpleTextOutlined("Inventory", "HUDNumber5",w*.5,l*.0425,Color(255,255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER, 2, Color(0,0,0,200) )
 		draw.SimpleTextOutlined("Weight: " .. InvWeight .. " out of " .. LocalPlayer().MaxWeight,"Trebuchet22",w*.5,l*.97,Color(255,255,255,200),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER, 2, Color(0,0,0,200) )
 	end
 
@@ -939,7 +939,7 @@ function SkillsTab()
 	ST.BackGround.Paint = function()
 		draw.RoundedBox(6,0,0,w,l,Color(0,200,0,80))
 		draw.RoundedBox(0,0,l*.01,w,l*.085,Color(250,250,250,220))
-		draw.SimpleTextOutlined("Skills","HUDNumber",w*.5,l*.0425,Color(255,255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER, 2, Color(0,0,0,200) )
+		draw.SimpleTextOutlined("Skills", "HUDNumber5",w*.5,l*.0425,Color(255,255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER, 2, Color(0,0,0,200) )
 	end
 	
 	ST.SkillList = vgui.Create("DScrollPanel", ST.BackGround)

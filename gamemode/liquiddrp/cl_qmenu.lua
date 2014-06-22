@@ -4,7 +4,7 @@ local LDRP = {}
 
 function LDRP.QMenuHUD()
 	if LDRP.QMenuStr then
-		local Font = (string.len(LDRP.QMenuStr) > 28 and "Trebuchet24") or "HUDNumber"
+		local Font = (string.len(LDRP.QMenuStr) > 28 and "Trebuchet24") or "HUDNumber5"
 		draw.SimpleTextOutlined(LDRP.QMenuStr, Font, ScrW()*.5, ScrH()*.03, Color(255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0,0,0) )
 	end
 end
@@ -308,7 +308,7 @@ function PANEL:CreateBG(name, x, y, w, h)
 	BackGroundWindow.Paint = function()
 		draw.RoundedBox( 8, 0, 0, w, h, LDRPColorMod(0,0,0,-40) )
 		draw.RoundedBox( 8, 6, 6, w-12, h-12, LDRPColorMod(40,40,40,-40) )
-		draw.SimpleTextOutlined(name, "HUDNumber", w*.5, h*.03, Color(255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0,0,0) )
+		draw.SimpleTextOutlined(name, "HUDNumber5", w*.5, h*.03, Color(255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 1, Color(0,0,0) )
 	end
 end
 

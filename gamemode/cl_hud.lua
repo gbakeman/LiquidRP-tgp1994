@@ -75,8 +75,8 @@ local function JobHelp()
 			draw.RoundedBox(10, ScrW()-594, 10, 590, 194, Color(67, 202, 211, 200))
 			draw.RoundedBox(10, ScrW()-590, 12, 586, 190, Color(67, 140, 211, 170))
 			draw.RoundedBox(10, ScrW()-590, 12, 586, 20, Color(67, 100, 211, 170))
-			draw.DrawText(v.." Help", "ScoreboardText", ScrW()-556, 12, Color(255,0,0,255),0)
-			draw.DrawText(string.format(LANGUAGE[v:lower().."help"], GAMEMODE.Config.jailtimer), "ScoreboardText", ScrW()-556, 35, Color(255,255,255,255),0)
+			draw.DrawText(v.." Help", "DarkRPHUD1", ScrW()-556, 12, Color(255,0,0,255),0)
+			draw.DrawText(string.format(LANGUAGE[v:lower().."help"], GAMEMODE.Config.jailtimer), "DarkRPHUD1", ScrW()-556, 35, Color(255,255,255,255),0)
 		end
 	end
 end
@@ -96,13 +96,13 @@ local function Agenda()
 		draw.RoundedBox(10, ScrW()-460, 12, 456, 106, Color(67, 140, 211, 100))
 		draw.RoundedBox(10, ScrW()-460, 12, 456, 20, Color(67, 100, 211, 100))
 		
-		draw.DrawText(DrawAgenda.Title, "ScoreboardText", ScrW()-430, 12, Color(255,0,0,255),0)
+		draw.DrawText(DrawAgenda.Title, "DarkRPHUD1", ScrW()-430, 12, Color(255,0,0,255),0)
 		
 		local AgendaText = ""
 		for k,v in pairs(team.GetPlayers(AgendaManager)) do
 			AgendaText = AgendaText .. (v.DarkRPVars.agenda or "")
 		end
-		draw.DrawText(string.gsub(string.gsub(AgendaText, "//", "\n"), "\\n", "\n"), "ScoreboardText", ScrW()-430, 35, Color(255,255,255,255),0)
+		draw.DrawText(string.gsub(string.gsub(AgendaText, "//", "\n"), "\\n", "\n"), "DarkRPHUD1", ScrW()-430, 35, Color(255,255,255,255),0)
 	end
 end
 
@@ -138,7 +138,7 @@ usermessage.Hook("GotArrested", function(msg)
 	
 	Arrested = function()
 		if CurTime() - StartArrested <= ArrestedUntil and LocalPlayer().DarkRPVars.Arrested then
-		draw.DrawText(string.format(LANGUAGE.youre_arrested, math.ceil(ArrestedUntil - (CurTime() - StartArrested))), "ScoreboardText", ScrW()/2, ScrH() - ScrH()/12, Color(255,255,255,255), 1)
+		draw.DrawText(string.format(LANGUAGE.youre_arrested, math.ceil(ArrestedUntil - (CurTime() - StartArrested))), "DarkRPHUD1", ScrW()/2, ScrH() - ScrH()/12, Color(255,255,255,255), 1)
 		elseif not LocalPlayer().DarkRPVars.Arrested then 
 			Arrested = function() end
 		end

@@ -227,7 +227,7 @@ function LDRP.DoTutorial()
 	function LDRP.TutorialHUD()
 		if LDRP.CurrentPart <= #LDRP.TutorialParts then
 			draw.RoundedBox(0,0,0,ScrW(),ScrH()*.1,Color(0,0,0,180))
-			draw.SimpleTextOutlined( LDRP.TutorialParts[LDRP.CurrentPart].name,"HUDNumber", ScrW()*.5, ScrH()*.05, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
+			draw.SimpleTextOutlined( LDRP.TutorialParts[LDRP.CurrentPart].name, "HUDNumber5", ScrW()*.5, ScrH()*.05, Color(255,255,255,255), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
 			
 			draw.RoundedBox(0,0,ScrH()*.9,ScrW(),ScrH()*.1,Color(0,0,0,180))
 			

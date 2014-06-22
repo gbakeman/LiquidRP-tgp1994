@@ -202,12 +202,18 @@ end
 
 GM.Config = {} -- config table
 
-include("config.lua")
+include("config/config.lua")
 include("libraries/fn.lua")
 include("libraries/interfaceloader.lua")
 
 include("libraries/modificationloader.lua")
 LoadModules()
+
+DarkRP.DARKRP_LOADING = true
+include("config/addentities.lua")
+DarkRP.DARKRP_LOADING = nil
+
+DarkRP.finish()
 
 include("language_sh.lua")
 include("MakeThings.lua")
@@ -301,7 +307,6 @@ usermessage.Hook("ToggleClicker", ToggleClicker)
 	
 include("sh_commands.lua")
 include("shared.lua")
-include("addentities.lua")
 include("ammotypes.lua")
 
 if UseFadmin then
@@ -464,16 +469,16 @@ local function RPSelectwhohearit()
 		local h = l - (#playercolors * 20) - 20
 		local AllTalk = GAMEMODE.Config.alltalk
 		if #playercolors <= 0 and ((HearMode ~= "talk through OOC" and HearMode ~= "advert" and not AllTalk) or (AllTalk and HearMode ~= "talk" and HearMode ~= "me") or HearMode == "speak" ) then
-			draw.WordBox(2, w, h, string.format(LANGUAGE.hear_noone, HearMode), "ScoreboardText", Color(0,0,0,120), Color(255,0,0,255))
+			draw.WordBox(2, w, h, string.format(LANGUAGE.hear_noone, HearMode), "DarkRPHUD1", Color(0,0,0,120), Color(255,0,0,255))
 		elseif HearMode == "talk through OOC" or HearMode == "advert" then
-			draw.WordBox(2, w, h, LANGUAGE.hear_everyone, "ScoreboardText", Color(0,0,0,120), Color(0,255,0,255))
+			draw.WordBox(2, w, h, LANGUAGE.hear_everyone, "DarkRPHUD1", Color(0,0,0,120), Color(0,255,0,255))
 		elseif not AllTalk or (AllTalk and HearMode ~= "talk" and HearMode ~= "me") then
-			draw.WordBox(2, w, h, string.format(LANGUAGE.hear_certain_persons, HearMode), "ScoreboardText", Color(0,0,0,120), Color(0,255,0,255))
+			draw.WordBox(2, w, h, string.format(LANGUAGE.hear_certain_persons, HearMode), "DarkRPHUD1", Color(0,0,0,120), Color(0,255,0,255))
 		end
 		
 		for k,v in pairs(playercolors) do
 			if v.Nick then
-				draw.WordBox(2, w, h + k*20, v:Nick(), "ScoreboardText", Color(0,0,0,120), Color(255,255,255,255))
+				draw.WordBox(2, w, h + k*20, v:Nick(), "DarkRPHUD1", Color(0,0,0,120), Color(255,255,255,255))
 			end
 		end
 	end)
