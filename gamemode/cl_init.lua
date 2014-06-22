@@ -128,13 +128,11 @@ end
 local function LoadLiquidDarkRP()
 	include("liquiddrp/cl_trading.lua")
 	include("liquiddrp/cl_stores.lua")
-	include("liquiddrp/sh_chat.lua")
 	include("liquiddrp/cl_hud.lua")
 
 	include("liquiddrp/sh_qmenu.lua")
 	
 	include("liquiddrp/cl_crafting.lua")
-	include("liquiddrp/cl_chat.lua")
 	
 	include("liquiddrp/cl_skills.lua")
 end
@@ -149,20 +147,6 @@ Names
 ---------------------------------------------------------------------------*/
 -- Make sure the client sees the RP name where they expect to see the name
 local pmeta = FindMetaTable("Player")
-
-pmeta.SteamName = pmeta.SteamName or pmeta.Name
-function pmeta:Name()
-	return GAMEMODE.Config.allowrpnames and self.DarkRPVars and self.DarkRPVars.rpname
-		or self:SteamName()
-end
-
-pmeta.GetName = pmeta.Name
-pmeta.Nick = pmeta.Name
-
-function pmeta:getDarkRPVar(var)
-	self.DarkRPVars = self.DarkRPVars or {}
-	return self.DarkRPVars[var]
-end
 
 local ENT = FindMetaTable("Entity")
 ENT.OldIsVehicle = ENT.IsVehicle
@@ -205,24 +189,24 @@ GM.Config = {} -- config table
 include("config/config.lua")
 include("libraries/fn.lua")
 include("libraries/interfaceloader.lua")
+include("libraries/disjointset.lua")
 
 include("libraries/modificationloader.lua")
 LoadModules()
 
 DarkRP.DARKRP_LOADING = true
+include("config/jobrelated.lua")
 include("config/addentities.lua")
 DarkRP.DARKRP_LOADING = nil
 
 DarkRP.finish()
 
-include("language_sh.lua")
 include("MakeThings.lua")
 include("cl_vgui.lua")
 include("entity.lua")
 include("showteamtabs.lua")
 include("sh_animations.lua")
 include("cl_hud.lua")
-include("Workarounds.lua")
 include("shared/player_class.lua")
 include("client/help.lua")
 
@@ -437,145 +421,6 @@ local function DoSpecialEffects(Type)
 end
 usermessage.Hook("DarkRPEffects", DoSpecialEffects)
 
-local Messagemode = false
-local playercolors = {}
-local HearMode = "talk"
-local isSpeaking = false
-
-local function RPStopMessageMode()
-	Messagemode = false
-	hook.Remove("Think", "RPGetRecipients")
-	hook.Remove("HUDPaint", "RPinstructionsOnSayColors")
-	playercolors = {}
-end
-
-local function CL_IsInRoom(listener) -- IsInRoom function to see if the player is in the same room.
-	local tracedata = {}
-	tracedata.start = LocalPlayer():GetShootPos()
-	tracedata.endpos = listener:GetShootPos()
-	local trace = util.TraceLine( tracedata )
-	
-	return not trace.HitWorld
-end
-
-local PlayerColorsOn = CreateClientConVar("rp_showchatcolors", 1, true, false)
-
-local function RPSelectwhohearit()
-	if PlayerColorsOn:GetInt() == 0 then return end
-	Messagemode = true
-	
-	hook.Add("HUDPaint", "RPinstructionsOnSayColors", function()
-		local w, l = ScrW()/80, ScrH() /1.75
-		local h = l - (#playercolors * 20) - 20
-		local AllTalk = GAMEMODE.Config.alltalk
-		if #playercolors <= 0 and ((HearMode ~= "talk through OOC" and HearMode ~= "advert" and not AllTalk) or (AllTalk and HearMode ~= "talk" and HearMode ~= "me") or HearMode == "speak" ) then
-			draw.WordBox(2, w, h, string.format(LANGUAGE.hear_noone, HearMode), "DarkRPHUD1", Color(0,0,0,120), Color(255,0,0,255))
-		elseif HearMode == "talk through OOC" or HearMode == "advert" then
-			draw.WordBox(2, w, h, LANGUAGE.hear_everyone, "DarkRPHUD1", Color(0,0,0,120), Color(0,255,0,255))
-		elseif not AllTalk or (AllTalk and HearMode ~= "talk" and HearMode ~= "me") then
-			draw.WordBox(2, w, h, string.format(LANGUAGE.hear_certain_persons, HearMode), "DarkRPHUD1", Color(0,0,0,120), Color(0,255,0,255))
-		end
-		
-		for k,v in pairs(playercolors) do
-			if v.Nick then
-				draw.WordBox(2, w, h + k*20, v:Nick(), "DarkRPHUD1", Color(0,0,0,120), Color(255,255,255,255))
-			end
-		end
-	end)
-	
-	hook.Add("Think", "RPGetRecipients", function() 
-		if not Messagemode then RPStopMessageMode() hook.Remove("Think", "RPGetRecipients") return end 
-		if HearMode ~= "whisper" and HearMode ~= "yell" and HearMode ~= "talk" and HearMode ~= "speak" and HearMode ~= "me" then return end
-		playercolors = {}
-		for k,v in pairs(player.GetAll()) do
-			if v ~= LocalPlayer() then
-				local distance = LocalPlayer():GetPos():Distance(v:GetPos())
-				if HearMode == "whisper" and distance < 90 and not table.HasValue(playercolors, v) then
-					table.insert(playercolors, v)
-				elseif HearMode == "yell" and distance < 550 and not table.HasValue(playercolors, v) then
-					table.insert(playercolors, v)
-				elseif HearMode == "speak" and distance < 550 and not table.HasValue(playercolors, v) then
-					if GAMEMODE.Config.dynamicvoice then
-						if CL_IsInRoom( v ) then
-							table.insert(playercolors, v)
-						end
-					else
-						table.insert(playercolors, v)
-					end
-				elseif HearMode == "talk" and not GAMEMODE.Config.alltalk and distance < 250 and not table.HasValue(playercolors, v) then
-					table.insert(playercolors, v)
-				elseif HearMode == "me" and not GAMEMODE.Config.alltalk and distance < 250 and not table.HasValue(playercolors, v) then
-					table.insert(playercolors, v)
-				end
-			end
-		end
-	end)
-end
-hook.Add("StartChat", "RPDoSomethingWithChat", RPSelectwhohearit)
-
-hook.Add("FinishChat", "RPCloseRadiusDetection", function() 
-	if not isSpeaking then 
-		Messagemode = false
-		RPStopMessageMode() 
-	else
-		HearMode = "speak" 
-	end
-end)
-
-function GM:ChatTextChanged(text)
-	if PlayerColorsOn:GetInt() == 0 then return end
-	if not Messagemode or HearMode == "speak" then return end
-	local old = HearMode
-	HearMode = "talk"
-	if not GAMEMODE.Config.alltalk then
-		if string.sub(text, 1, 2) == "//" or string.sub(string.lower(text), 1, 4) == "/ooc" or string.sub(string.lower(text), 1, 4) == "/a" then
-			HearMode = "talk through OOC"
-		elseif string.sub(string.lower(text), 1, 7) == "/advert" then
-			HearMode = "advert"
-		end
-	end
-	
-	if string.sub(string.lower(text), 1, 3) == "/pm" then
-		local plyname = string.sub(text, 5)
-		if string.find(plyname, " ") then
-			plyname = string.sub(plyname, 1, string.find(plyname, " ") - 1)
-		end
-		HearMode = "pm"
-		playercolors = {}
-		if plyname ~= "" and FindPlayer(plyname) then
-			playercolors = {FindPlayer(plyname)}
-		end
-	elseif string.sub(string.lower(text), 1, 3) == "/g " then
-		HearMode = "group chat"
-		local t = LocalPlayer():Team()
-		playercolors = {}
-		if t == TEAM_POLICE or t == TEAM_CHIEF or t == TEAM_MAYOR then
-			for k, v in pairs(player.GetAll()) do
-				if v ~= LocalPlayer() then
-					local vt = v:Team()
-					if vt == TEAM_POLICE or vt == TEAM_CHIEF or vt == TEAM_MAYOR then table.insert(playercolors, v) end
-				end
-			end
-		elseif t == TEAM_MOB or t == TEAM_GANG then
-			for k, v in pairs(player.GetAll()) do
-				if v ~= LocalPlayer() then
-					local vt = v:Team()
-					if vt == TEAM_MOB or vt == TEAM_GANG then table.insert(playercolors, v) end
-				end
-			end
-		end
-	elseif string.sub(string.lower(text), 1, 3) == "/w " then
-		HearMode = "whisper"
-	elseif string.sub(string.lower(text), 1, 2) == "/y" then
-		HearMode = "yell"
-	elseif string.sub(string.lower(text), 1, 3) == "/me" then
-		HearMode = "me"
-	end
-	if old ~= HearMode then
-		playercolors = {}
-	end
-end
-
 local function blackScreen(um)
 	local toggle = um:ReadBool()
 	if toggle then
@@ -638,14 +483,6 @@ function GM:PlayerEndVoice(ply) //voice/icntlk_pl.vtf
 	self.BaseClass:PlayerEndVoice(ply)
 end
 
---[[function GM:PlayerBindPress(ply,bind,pressed)
-	self.BaseClass:PlayerBindPress(ply, bind, pressed)
-	if ply == LocalPlayer() and IsValid(ply:GetActiveWeapon()) and string.find(string.lower(bind), "attack2") and ply:GetActiveWeapon():GetClass() == "weapon_bugbait" then
-		LocalPlayer():ConCommand("_hobo_emitsound")
-	end
-	return
-end]]
-
 local function GetAvailableVehicles()
 	print("Available vehicles for custom vehicles:")
 	for k,v in pairs(list.Get("Vehicles")) do
@@ -691,60 +528,18 @@ local function UpdateDoorData(um)
 end
 usermessage.Hook("DRP_UpdateDoorData", UpdateDoorData)
 
-local function RetrievePlayerVar(entIndex, var, value, tries)
-	local ply = Entity(entIndex)
-
-	-- Usermessages _can_ arrive before the player is valid.
-	-- In this case, chances are huge that this player will become valid.
-	if not IsValid(ply) then
-		if tries >= 5 then return end
-
-		timer.Simple(0.5, function() RetrievePlayerVar(entIndex, var, value, tries + 1) end)
-		return
-	end
-
-	ply.DarkRPVars = ply.DarkRPVars or {}
-
-	local stringvalue = value
-	value = tonumber(value) or value
-
-	if string.match(stringvalue, "Entity .([0-9]*)") then
-		value = Entity(string.match(stringvalue, "Entity .([0-9]*)"))
-	end
-
-	if string.match(stringvalue, "^Player .([0-9]+).") then
-		value = player.GetAll()[tonumber(string.match(stringvalue, "^Player .([0-9]+)."))]
-	end
-
-	if stringvalue == "NULL" then
-		value = NULL
-	end
-
-	if string.match(stringvalue, [[(-?[0-9]+.[0-9]+) (-?[0-9]+.[0-9]+) (-?[0-9]+.[0-9]+)]]) then
-		local x,y,z = string.match(value, [[(-?[0-9]+.[0-9]+) (-?[0-9]+.[0-9]+) (-?[0-9]+.[0-9]+)]])
-		value = Vector(x,y,z)
-	end
-
-	if stringvalue == "true" or stringvalue == "false" then value = tobool(value) end
-
-	if stringvalue == "nil" then value = nil end
-
-	hook.Call("DarkRPVarChanged", nil, ply, var, ply.DarkRPVars[var], value)
-	ply.DarkRPVars[var] = value
-end
-
 /*---------------------------------------------------------------------------
 Retrieve a player var.
 Read the usermessage and attempt to set the DarkRP var
 ---------------------------------------------------------------------------*/
-local function doRetrieve(um)
+--[[local function doRetrieve(um)
 	local entIndex = um:ReadShort()
 	local var, value = um:ReadString(), um:ReadString()
 	RetrievePlayerVar(entIndex, var, value, 0)
 end
-usermessage.Hook("DarkRP_PlayerVar", doRetrieve)
+usermessage.Hook("DarkRP_PlayerVar", doRetrieve)]]
 
-local function InitializeDarkRPVars(len)
+--[[local function InitializeDarkRPVars(len)
 	local vars = net.ReadTable()
 
 	if not vars then return end
@@ -758,7 +553,7 @@ local function InitializeDarkRPVars(len)
 		end
 	end
 end
-net.Receive("DarkRP_InitializeVars", InitializeDarkRPVars)
+net.Receive("DarkRP_InitializeVars", InitializeDarkRPVars)]]
 	
 function GM:InitPostEntity()
 	g_VoicePanelList = vgui.Create( "DPanel" )
@@ -808,7 +603,7 @@ function GM:InitPostEntity()
 		draw.RoundedBox( 4, 0, 0, w, h, dcolor )
 	end
 	
-	RunConsoleCommand("_sendDarkRPvars")
+	--[[RunConsoleCommand("_sendDarkRPvars")
 	timer.Create("DarkRPCheckifitcamethrough", 15, 0, function()
 		for k,v in pairs(player.GetAll()) do
 			if v.DarkRPVars and v:getDarkRPVar("rpname") then continue end
@@ -816,7 +611,7 @@ function GM:InitPostEntity()
 			RunConsoleCommand("_sendDarkRPvars")
 			return
 		end
-	end)
+	end)]]
 end
 
 include("liquiddrp/cl_qmenu.lua")

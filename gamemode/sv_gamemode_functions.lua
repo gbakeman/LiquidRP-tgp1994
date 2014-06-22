@@ -1,5 +1,4 @@
 util.AddNetworkString("DarkRP_DoorData")
-util.AddNetworkString( "DarkRP_InitializeVars" )
 
 /*---------------------------------------------------------------------------
 DarkRP hooks
@@ -427,15 +426,22 @@ local function SetPlayerModel(ply, cmd, args)
 end
 concommand.Add("_rp_ChosenModel", SetPlayerModel)
 
+
 function GM:PlayerSetModel(ply)
+	local teamNr = ply:Team()
+	if RPExtraTeams[teamNr] and RPExtraTeams[teamNr].PlayerSetModel then
+		local model = RPExtraTeams[teamNr].PlayerSetModel(ply)
+		if model then ply:SetModel(model) return end
+	end
+
 	local EndModel = ""
 	if GAMEMODE.Config.enforceplayermodel then
-		local TEAM = RPExtraTeams[ply:Team()]
-		
-		if type(TEAM.model) == "table" then
-			local ChosenModel = ply.rpChosenModel or ply:GetInfo("rp_playermodel")
-			ChosenModel = string.lower(ChosenModel)
-			
+		local TEAM = RPExtraTeams[teamNr]
+		if not TEAM then return end
+
+		if istable(TEAM.model) then
+			local ChosenModel = string.lower(ply:getPreferredModel(teamNr) or "")
+
 			local found
 			for _,Models in pairs(TEAM.model) do
 				if ChosenModel == string.lower(Models) then
@@ -444,7 +450,7 @@ function GM:PlayerSetModel(ply)
 					break
 				end
 			end
-			
+
 			if not found then
 				EndModel = TEAM.model[math.random(#TEAM.model)]
 			end
@@ -454,10 +460,12 @@ function GM:PlayerSetModel(ply)
 
 		ply:SetModel(EndModel)
 	else
-		local cl_playermodel = ply:GetInfo( "cl_playermodel" )
-        local modelname = player_manager.TranslatePlayerModel( cl_playermodel )
-        ply:SetModel( modelname )
+		local cl_playermodel = ply:GetInfo("cl_playermodel")
+		local modelname = player_manager.TranslatePlayerModel(cl_playermodel)
+		ply:SetModel(ply:getPreferredModel(teamNr) or modelname)
 	end
+
+	ply:SetupHands()
 end
 
 function GM:PlayerInitialSpawn(ply)
@@ -491,58 +499,6 @@ local function formatDarkRPValue(value)
 
 	return tostring(value)
 end
-
-local meta = FindMetaTable("Player")
-function meta:SetDarkRPVar(var, value, target)
-	if not IsValid(self) then return end
-	target = target or RecipientFilter():AddAllPlayers()
-
-	hook.Call("DarkRPVarChanged", nil, self, var, (self.DarkRPVars and self.DarkRPVars[var]) or nil, value)
-
-	self.DarkRPVars = self.DarkRPVars or {}
-	self.DarkRPVars[var] = value
-
-	value = formatDarkRPValue(value)
-
-	umsg.Start("DarkRP_PlayerVar", target)
-		-- The index because the player handle might not exist clientside yet
-		umsg.Short(self:EntIndex())
-		umsg.String(var)
-		umsg.String(value)
-	umsg.End()
-end
-
-function meta:SetSelfDarkRPVar(var, value)
-	self.privateDRPVars = self.privateDRPVars or {}
-	self.privateDRPVars[var] = true
-
-	self:SetDarkRPVar(var, value, self)
-end
-
-function meta:getDarkRPVar(var)
-	self.DarkRPVars = self.DarkRPVars or {}
-	return self.DarkRPVars[var]
-end
-
-local function SendDarkRPVars(ply)
-	if ply.DarkRPVarsSent and ply.DarkRPVarsSent > (CurTime() - 1) then return end --prevent spammers
-	ply.DarkRPVarsSent = CurTime()
-
-	local sendtable = {}
-	for k,v in pairs(player.GetAll()) do
-		sendtable[v] = {}
-		for a,b in pairs(v.DarkRPVars or {}) do
-			if not (v.privateDRPVars or {})[a] or ply == v then
-				sendtable[v][a] = b
-			end
-		end
-	end
-
-	net.Start("DarkRP_InitializeVars")
-		net.WriteTable(sendtable)
-	net.Send(ply)
-end
-concommand.Add("_sendDarkRPvars", SendDarkRPVars)
 
 function GM:PlayerSelectSpawn(ply)
 	local POS = self.BaseClass:PlayerSelectSpawn(ply)

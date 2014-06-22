@@ -247,6 +247,10 @@ GM.Config.wantedtime					= 120
 -- walkspeed - Sets the max walking speed.
 GM.Config.walkspeed						= 160
 
+-- The classname of money packets. Use this to create your own money entity!
+-- Note: the money packet must support the "Setamount" method (or the amount DTVar)
+GM.Config.MoneyClass = "spawned_money"
+
 GM.Config.currency = "$"
 GM.Config.chatCommandPrefix = "/"
 

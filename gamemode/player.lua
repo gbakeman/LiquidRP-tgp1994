@@ -1,92 +1,12 @@
 /*---------------------------------------------------------
+/*---------------------------------------------------------
  Variables
  ---------------------------------------------------------*/
 local meta = FindMetaTable("Player")
 
-/*---------------------------------------------------------
- RP names
- ---------------------------------------------------------*/
-local function RPName(ply, args)
-	
-	if ply.LastNameChange and ply.LastNameChange > (CurTime() - 5) then
-		Notify( ply, 1, 4, string.format( LANGUAGE.have_to_wait,  math.ceil(5 - (CurTime() - ply.LastNameChange)), "/rpname" ))
-		return ""
-	end
-	
-	if not GAMEMODE.Config.allowrpnames then
-		Notify(ply, 1, 6,  string.format(LANGUAGE.disabled, "RPname", "")) 
-		return ""
-	end
-
-	local len = string.len(args)
-	local low = string.lower(args)
-
-	if len > 30 then
-		Notify(ply, 1, 4, string.format(LANGUAGE.unable, "RPname", "<=30"))
-		return ""
-	elseif len < 3 then
-		Notify(ply, 1, 4, string.format(LANGUAGE.unable, "RPname", ">2"))
-		return ""
-	end
-	
- 	if string.find(args, "\160") or string.find(args, " ") == 1 then -- No system spaces in your name bro!
-		Notify(ply, 1, 4, string.format(LANGUAGE.unable, "RPname", ""))
-		return ""
-	end
-	
-	if low == "ooc" or low == "shared" or low == "world" or low == "n/a" or low == "world prop" then
-		Notify(ply, 1, 4, string.format(LANGUAGE.unable, "RPname", ""))
-		return ""
-	end
-	
-	local allowed = {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-	'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 
-	'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 
-	'z', 'x', 'c', 'v', 'b', 'n', 'm', ' ',
-	'(', ')', '[', ']', '!', '@', '#', '$', '%', '^', '&', '*', '-', '_', '=', '+', '|', '\\'}
-	
-	for k in string.gmatch(args, ".") do
-		if not table.HasValue(allowed, string.lower(k)) then
-			Notify(ply, 1, 4, string.format(LANGUAGE.unable, "RPname", k))
-			return "" 
-		end
-	end 
-	ply:SetRPName(args)
-	ply.LastNameChange = CurTime()
-	return ""
-end
-AddChatCommand("/rpname", RPName)
-AddChatCommand("/name", RPName)
-AddChatCommand("/nick", RPName)
-
 function meta:IsCP()
 	local Team = self:Team()
 	return Team == TEAM_POLICE or Team == TEAM_CHIEF or Team == TEAM_MAYOR
-end
-
-function meta:SetRPName(name, firstRun)
-	-- Make sure nobody on this server already has this RP name
-	local lowername = string.lower(tostring(name))
-	DB.RetrieveRPNames(self, name, function(taken)
-		if string.len(lowername) < 2 and not firstrun then return end
-		-- If we found that this name exists for another player
-		if taken then
-			if firstRun then
-				-- If we just connected and another player happens to be using our steam name as their RP name
-				-- Put a 1 after our steam name
-				DB.StoreRPName(self, name .. " 1")
-				Notify(self, 0, 12, "Someone is already using your Steam name as their RP name so we gave you a '1' after your name.") 
-			else
-				Notify(self, 1, 5, string.format(LANGUAGE.unable, "RPname", "it's been taken"))
-				return ""
-			end
-		else
-			if not firstRun then -- Don't save the steam name in the database
-				NotifyAll(2, 6, string.format(LANGUAGE.rpname_changed, self:SteamName(), name))
-				DB.StoreRPName(self, name)
-			end
-		end
-	end)
 end
 
 function meta:RestorePlayerData()
@@ -102,10 +22,10 @@ function meta:RestorePlayerData()
 		info.wallet = info.wallet or GAMEMODE.Config.startingmoney
 		info.salary = info.salary or GAMEMODE.Config.normalsalary
 
-		self:SetDarkRPVar("money", tonumber(info.wallet))
-		self:SetDarkRPVar("salary", tonumber(info.salary))
+		self:setDarkRPVar("money", tonumber(info.wallet))
+		self:setDarkRPVar("salary", tonumber(info.salary))
 
-		self:SetDarkRPVar("rpname", info.rpname)
+		self:setDarkRPVar("rpname", info.rpname)
 
 		if not data then
 			DB.CreatePlayerData(self, info.rpname, info.wallet, info.salary)
@@ -113,9 +33,9 @@ function meta:RestorePlayerData()
 	end, function() -- Retrieving data failed, go on without it
 		self.DarkRPUnInitialized = nil
 
-		self:SetDarkRPVar("money", GAMEMODE.Config.startingmoney)
-		self:SetDarkRPVar("salary", GAMEMODE.Config.normalsalary)
-		self:SetDarkRPVar(string.gsub(self:SteamName(), "\\\"", "\""))
+		self:setDarkRPVar("money", GAMEMODE.Config.startingmoney)
+		self:setDarkRPVar("salary", GAMEMODE.Config.normalsalary)
+		self:setDarkRPVar(string.gsub(self:SteamName(), "\\\"", "\""))
 
 		error("Failed to retrieve player information from MySQL server")
 	end)
@@ -351,7 +271,7 @@ function meta:ChangeTeam(t, force)
 end
 
 function meta:UpdateJob(job)
-	self:SetDarkRPVar("job", job)
+	self:setDarkRPVar("job", job)
 	self:GetTable().Pay = 1
 	self:GetTable().LastPayDay = CurTime()
 
@@ -428,7 +348,7 @@ local function JailPos(ply)
 	end
 	return ""
 end
-AddChatCommand("/jailpos", JailPos)
+DarkRP.defineChatCommand("/jailpos", JailPos)
 
 local function AddJailPos(ply)
 	-- Admin or Chief can add Jail Positions
@@ -444,7 +364,7 @@ local function AddJailPos(ply)
 	end
 	return ""
 end
-AddChatCommand("/addjailpos", AddJailPos)
+DarkRP.defineChatCommand("/addjailpos", AddJailPos)
 
 local arrestedPlayers = {}
 function meta:isArrested()

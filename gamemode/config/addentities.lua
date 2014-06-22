@@ -17,11 +17,45 @@ AddCustomShipment("Mac 10", "models/weapons/w_smg_mac10.mdl", "weapon_real_cs_ma
 AddCustomShipment("Pump shotgun", "models/weapons/w_shot_m3super90.mdl", "weapon_real_cs_pumpshotgun", 1750, 10, false, nil, false, {TEAM_GUN}) 
 AddCustomShipment("Sniper rifle", "models/weapons/w_snip_g3sg1.mdl", "ls_sniper", 3750, 10, false, nil, false, {TEAM_GUN}) 
 
-AddEntity("Drug lab", "drug_lab", "models/props_lab/crematorcase.mdl", 400, 3, "/buydruglab", {TEAM_GANG, TEAM_MOB})
+--[[AddEntity("Drug lab", "drug_lab", "models/props_lab/crematorcase.mdl", 400, 3, "/buydruglab", {TEAM_GANG, TEAM_MOB})
 AddEntity("Money printer", "money_printer", "models/props_c17/consolebox01a.mdl", 1500, 2, "/buymoneyprinter")
 AddEntity("Money printer cooler", "cooler", "models/nukeftw/faggotbox.mdl", 300, 2, "/buycooler")
 AddEntity("Pot", "pot", "models/nater/weedplant_pot_dirt.mdl", 100, 7, "/buypot")
-AddEntity("Gun lab", "gunlab", "models/props_c17/TrapPropeller_Engine.mdl", 500, 1, "/buygunlab", TEAM_GUN)
+AddEntity("Gun lab", "gunlab", "models/props_c17/TrapPropeller_Engine.mdl", 500, 1, "/buygunlab", TEAM_GUN)]]
+
+DarkRP.createEntity("Drug lab", {
+	ent = "drug_lab",
+	model = "models/props_lab/crematorcase.mdl",
+	price = 400,
+	max = 3,
+	cmd = "buydruglab",
+	allowed = {TEAM_GANG, TEAM_MOB}
+})
+
+DarkRP.createEntity("Money printer", {
+	ent = "money_printer",
+	model = "models/props_c17/consolebox01a.mdl",
+	price = 1000,
+	max = 2,
+	cmd = "buymoneyprinter"
+})
+
+DarkRP.createEntity("Money Printer Cooler", {
+	ent = "cooler",
+	model = "models/nukeftw/faggotbox.mdl",
+	price = 300,
+	max = 2,
+	cmd = "buycooler",
+})
+
+DarkRP.createEntity("Gun lab", {
+	ent = "gunlab",
+	model = "models/props_c17/TrapPropeller_Engine.mdl",
+	price = 500,
+	max = 1,
+	cmd = "buygunlab",
+	allowed = TEAM_GUN
+})
 
 /*
 How to add custom vehicles:

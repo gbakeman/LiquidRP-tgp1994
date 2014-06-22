@@ -7,14 +7,15 @@ DeriveGamemode("sandbox")
 
 AddCSLuaFile("libraries/interfaceloader.lua")
 AddCSLuaFile("libraries/modificationloader.lua")
+AddCSLuaFile("libraries/disjointset.lua")
 AddCSLuaFile("libraries/fn.lua")
 
 AddCSLuaFile("config/config.lua")
 AddCSLuaFile("config/addentities.lua")
+AddCSLuaFile("config/jobrelated.lua")
 
 include("modules/von.lua") --Temporary until I figure out how to officially bundle lua modules
 AddCSLuaFile("modules/von.lua")
-include("language_sh.lua") -- Had to move this
 include("MakeThings.lua") -- this
 include("shared.lua") -- and this up here to load before LDRP
 AddCSLuaFile("client/help.lua")
@@ -37,7 +38,6 @@ local function LoadLiquidDarkRP()
 
 	LiquidInclude("sv","sv_resources")
 	LiquidInclude("sv","sv_playerfuncs")
-	LiquidInclude("sh","sh_chat")
 	LiquidInclude("cl","sh_liquiddrp")
 	LiquidInclude("sv","sv_inventory")
 	LiquidInclude("sv","sv_printers")
@@ -55,8 +55,6 @@ local function LoadLiquidDarkRP()
 	LiquidInclude("sh","sh_qmenu")
 	LiquidInclude("cl","cl_qmenu")
 	LiquidInclude("sv","sv_qmenu")
-	
-	LiquidInclude("cl","cl_chat")
 	
 	LiquidInclude("sv","sv_trading")
 	LiquidInclude("cl","cl_trading")
@@ -79,18 +77,17 @@ end
 -- RP Name Overrides
 local meta = FindMetaTable("Player")
 
-meta.SteamName = meta.SteamName or meta.Name --Fix for stack overflow?
+--[[meta.SteamName = meta.SteamName or meta.Name --Fix for stack overflow?
 function meta:Name()
 	return GAMEMODE.Config.allowrpnames and self.DarkRPVars and self:getDarkRPVar("rpname")
 		or self:SteamName()
 end
 meta.Nick = meta.Name
-meta.GetName = meta.Name
+meta.GetName = meta.Name]]
 -- End
 
 RPArrestedPlayers = {}
 
-AddCSLuaFile("language_sh.lua")
 AddCSLuaFile("MakeThings.lua")
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
@@ -101,7 +98,6 @@ AddCSLuaFile("showteamtabs.lua")
 AddCSLuaFile("sh_commands.lua")
 AddCSLuaFile("client/help.lua")
 AddCSLuaFile("sh_animations.lua")
-AddCSLuaFile("Workarounds.lua")
 AddCSLuaFile("cl_hud.lua")
 AddCSLuaFile("shared/player_class.lua")
 
@@ -119,8 +115,8 @@ include("licenseweapons.lua")
 
 include("libraries/modificationloader.lua")
 include("libraries/fn.lua")
+include("libraries/disjointset.lua")
 
-include("chat.lua")
 include("admincc.lua")
 
 include("shared/player_class.lua")
@@ -128,8 +124,6 @@ include("sh_animations.lua")
 include("server/commands.lua")
 include("sh_commands.lua")
 include("entity.lua")
-
-include("Workarounds.lua")
 
 include("ammotypes.lua")
 include("server/database.lua")
@@ -202,6 +196,7 @@ for _, folder in SortedPairs(folders, true) do
 end
 
 DarkRP.DARKRP_LOADING = true
+include("config/jobrelated.lua")
 include("config/addentities.lua")
 DarkRP.DARKRP_LOADING = nil
 
@@ -228,11 +223,6 @@ function debug.getupvalues(f)
 	end
 	return t
 end
-
---[[glon.encode_types = debug.getupvalues(glon.Write).encode_types
-glon.encode_types["Vehicle"] = glon.encode_types["Vehicle"] or {10, function(o)
-		return (IsValid(o) and o:EntIndex() or -1).."\1"
-	end}]]
 	
 for k,v in pairs(LDRP_DLC.SV) do
 	if v == "after" then include(k) end

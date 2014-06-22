@@ -10,35 +10,6 @@ local function checkValid(tbl, requiredItems)
 	end
 end
 
-RPExtraTeams = {}
-function AddExtraTeam(Name, colorOrTable, model, Description, Weapons, command, maximum_amount_of_this_class, Salary, admin, Vote, Haslicense, NeedToChangeFrom, CustomCheck)
-	local tableSyntaxUsed = colorOrTable.r == nil -- the color is not a color table.
-
-	local CustomTeam = tableSyntaxUsed and colorOrTable or
-		{color = colorOrTable, model = model, description = Description, weapons = Weapons, command = command,
-			max = maximum_amount_of_this_class, salary = Salary, admin = admin or 0, vote = tobool(Vote), hasLicense = Haslicense,
-			NeedToChangeFrom = NeedToChangeFrom, customCheck = CustomCheck
-		}
-	CustomTeam.name = Name
-
-	local corrupt = checkValid(CustomTeam, requiredTeamItems)
-	if corrupt then ErrorNoHalt("Corrupt team \"" ..(CustomTeam.name or "") .. "\": element " .. corrupt .. " is incorrect.\n") end
-
-	table.insert(RPExtraTeams, CustomTeam)
-	team.SetUp(#RPExtraTeams, Name, CustomTeam.color)
-	local Team = #RPExtraTeams
-
-	timer.Simple(0, function() GAMEMODE:AddTeamCommands(CustomTeam, CustomTeam.max) end)
-
-	// Precache model here. Not right before the job change is done
-	if type(CustomTeam.model) == "table" then
-		for k,v in pairs(CustomTeam.model) do util.PrecacheModel(v) end
-	else
-		util.PrecacheModel(CustomTeam.model)
-	end
-	return Team
-end
-
 RPExtraTeamDoors = {}
 
 function AddDoorGroup(name, ...)

@@ -252,7 +252,7 @@ function LDRP.HUDPaint()
 		local HPPercent = math.Clamp(NiceHP/100,.03,1)
 		draw.RoundedBox(6,Pos1,2.7,252,22.5, SKIN.bg_color_dark)
 		draw.RoundedBox(6,Pos1+3.6,4.95,(HPPercent*MeterW),18, HSVToColor( 360 - (125 * -HPPercent), 1, 1 ) ) --Never thought I'd use this function
-		draw.SimpleTextOutlined( "Health: " .. LH, "Trebuchet18", Pos1+126, 13.95, SKIN.tooltip, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, SKIN.text_outline )
+		draw.SimpleTextOutlined( "Health: " .. LH, "TabLarge", Pos1+126, 13.95, SKIN.tooltip, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, SKIN.text_outline )
 	end
 	
 	if GetConVarNumber("cl_showammo") == 1 then
@@ -269,7 +269,7 @@ function LDRP.HUDPaint()
 		draw.RoundedBox(6,Pos3,Pos1,252,22.5, SKIN.bg_color_dark )
 		draw.RoundedBox(6,Pos3+3.6,Pos2,MeterW,18, SKIN.tooltip)
 		local AmmoStr = (PrimaryAmmo < 0 and "Unlimited") or (PrimaryAmmo == 0 and SecondaryAmmo == 0 and "Empty") or(PrimaryAmmo .. "/" .. SecondaryAmmo)
-		draw.SimpleTextOutlined( "Ammo: " .. AmmoStr, "Trebuchet18", Pos3+126, Pos4, SKIN.tooltip, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, SKIN.text_outline )
+		draw.SimpleTextOutlined( "Ammo: " .. AmmoStr, "TabLarge", Pos3+126, Pos4, SKIN.tooltip, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, SKIN.text_outline )
 	end
 	
 	if ShowPC == 1 then

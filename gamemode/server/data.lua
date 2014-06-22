@@ -561,16 +561,19 @@ Players
  ---------------------------------------------------------*/
 function DB.StoreRPName(ply, name)
 	if not name or string.len(name) < 2 then return end
-	ply:SetDarkRPVar("rpname", name)
+	hook.Call("onPlayerChangedName", nil, ply, ply:getDarkRPVar("rpname"), name)
+	ply:setDarkRPVar("rpname", name)
 
 	MySQLite.query([[UPDATE ]]..DB.Prefix..[[_player SET rpname = ]] .. MySQLite.SQLStr(name) .. [[ WHERE UID = ]] .. ply:UniqueID() .. ";")
 end
+DarkRP.storeRPName = DB.StoreRPName
 
-function DB.RetrieveRPNames(ply, name, callback)
+function DB.RetrieveRPNames(name, callback)
 	MySQLite.query("SELECT COUNT(*) AS count FROM "..DB.Prefix.."_player WHERE rpname = "..MySQLite.SQLStr(name)..";", function(r)
 		callback(tonumber(r[1].count) > 0)
 	end)
 end
+DarkRP.retrieveRPNames = DB.RetrieveRPNames --Compatibility until the data is implemented with DarkRP
 
 function DB.RetrievePlayerData(ply, callback, failed, attempts)
 	attempts = attempts or 0

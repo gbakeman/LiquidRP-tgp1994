@@ -1,3 +1,15 @@
+DarkRP.declareChatCommand{
+	command = "toggleownable",
+	description = "Sets the door as ownable.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "/togglegroupownable",
+	description = "Sets the door as group ownable.",
+	delay = 1.5
+}
+
 /*---------------------------------------------------------
  Shared part
  ---------------------------------------------------------*/
@@ -223,7 +235,7 @@ local function SetDoorOwnable(ply)
 	ply.LookingAtDoor = nil -- Send the new data to the client who is looking at the door :D
 	return ""
 end
-AddChatCommand("/toggleownable", SetDoorOwnable)
+DarkRP.defineChatCommand("toggleownable", SetDoorOwnable)
 
 local time3 = false
 local function SetDoorGroupOwnable(ply, arg)
@@ -266,7 +278,8 @@ local function SetDoorGroupOwnable(ply, arg)
 	GAMEMODE:Notify(ply, 0, 8, "Door group set successfully")
 	return ""
 end
-AddChatCommand("/togglegroupownable", SetDoorGroupOwnable)
+--AddChatCommand("/togglegroupownable", SetDoorGroupOwnable)
+DarkRP.defineChatCommand("/togglegroupownable", SetDoorGroupOwnable)
 
 local time2 = false
 local function OwnDoor(ply)
@@ -338,7 +351,12 @@ local function OwnDoor(ply)
 	Notify(ply, 1, 4, string.format(LANGUAGE.must_be_looking_at, "vehicle/door"))
 	return ""
 end
-AddChatCommand("/toggleown", OwnDoor)
+--AddChatCommand("/toggleown", OwnDoor)
+DarkRP.declareChatCommand{
+	command = "toggleown",
+	description = "Takes ownership of the door.",
+	delay = 1.5
+}
 
 local function UnOwnAll(ply, cmd, args)
 	local amount = 0
@@ -355,7 +373,12 @@ local function UnOwnAll(ply, cmd, args)
 	Notify(ply, 2, 4, string.format("You have sold "..amount.." doors for " .. CUR .. amount * math.floor(((GAMEMODE.Config.doorcost * 0.66666666666666)+0.5)) .. "!"))
 	return ""
 end
-AddChatCommand("/unownalldoors", UnOwnAll)
+--AddChatCommand("/unownalldoors", UnOwnAll)
+DarkRP.declareChatCommand{
+	command = "unownalldoors",
+	description = "Sells all doors that you own.",
+	delay = 1.5
+}
 
 function meta:UnOwn(ply)
 	self.DoorData = self.DoorData or {}
@@ -440,7 +463,12 @@ local function SetDoorTitle(ply, args)
 	ply.LookingAtDoor = nil
 	return ""
 end
-AddChatCommand("/title", SetDoorTitle)
+--AddChatCommand("/title", SetDoorTitle)
+DarkRP.declareChatCommand{
+	command = "title",
+	description = "Sets the title of the door..",
+	delay = 1.5
+}
 
 local function RemoveDoorOwner(ply, args)
 	local trace = ply:GetEyeTrace()
@@ -473,8 +501,8 @@ local function RemoveDoorOwner(ply, args)
 	ply.LookingAtDoor = nil
 	return ""
 end
-AddChatCommand("/removeowner", RemoveDoorOwner)
-AddChatCommand("/ro", RemoveDoorOwner)
+DarkRP.defineChatCommand("/removeowner", RemoveDoorOwner)
+DarkRP.defineChatCommand("/ro", RemoveDoorOwner)
 
 local function AddDoorOwner(ply, args)
 	local trace = ply:GetEyeTrace()
@@ -505,5 +533,5 @@ local function AddDoorOwner(ply, args)
 	ply.LookingAtDoor = nil
 	return ""
 end
-AddChatCommand("/addowner", AddDoorOwner)
-AddChatCommand("/ao", AddDoorOwner)
+DarkRP.defineChatCommand("/addowner", AddDoorOwner)
+DarkRP.defineChatCommand("/ao", AddDoorOwner)

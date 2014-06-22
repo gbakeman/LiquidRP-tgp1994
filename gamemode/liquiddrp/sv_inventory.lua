@@ -207,4 +207,4 @@ function LDRP.HolsterWep(ply,cmd,args)
 	
 	return ""
 end
-AddChatCommand("/holster",LDRP.HolsterWep)
+DarkRP.defineChatCommand("/holster",LDRP.HolsterWep)
