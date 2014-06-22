@@ -162,6 +162,8 @@ GM.Config.adminweapons					= 1
 GM.Config.arrestspeed					= 120
 -- babygodtime - How long the babygod lasts
 GM.Config.babygodtime					= 5
+-- changejobtime - Minimum amount of seconds a player has to wait before changing job.
+GM.Config.changejobtime					= 10
 -- deathfee - the amount of money someone drops when dead.
 GM.Config.deathfee						= 30
 -- decaltimer - Sets the time to clear clientside decals. (seconds)
@@ -279,4 +281,12 @@ GM.Config.DefaultLaws = {
 	"Do not attack other citizens except in self-defence.",
 	"Do not steal or break in to peoples homes.",
 	"Money printers/drugs are illegal."
+}
+
+-- The entities listed here will not be removed when a player changes their job.
+-- This only applies when removeclassitems is set to true
+-- Note: entities will only be removed when the player changes to a job that is not allowed to have the entity
+GM.Config.preventClassItemRemoval = {
+["gunlab"] = false,
+["microwave"] = false,
 }

@@ -17,7 +17,7 @@ function LDRP.UpgradePrinter(ply,fargs)
 			local nexn = table.KeyFromValue(LDRP_SH.PrOrder, nex)
 			if ply:CanAfford(tb[nexn].cost) then
 				local b = tb[nexn]
-				ply:AddMoney(-b.cost)
+				ply:addMoney(-b.cost)
 				ply:LiquidChat("GAME", Color(0,200,200), "You have upgraded this printer to " .. nexn .. " for $" .. b.cost)
 				ent:SetNWString("Upgrade",nexn)
 				ent:SetPos(ent:GetPos()+Vector(0,0,10))

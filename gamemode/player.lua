@@ -48,11 +48,6 @@ function meta:HasPriv(priv)
 	return (FAdmin and FAdmin.Access.PlayerHasPrivilege(self, priv)) or self:IsAdmin()
 end
 
-function meta:ChangeAllowed(t)
-	if not self.bannedfrom then return true end
-	if self.bannedfrom[t] == 1 then return false else return true end
-end
-
 function meta:InitiateTax()
 	local taxtime = GAMEMODE.Config.wallettaxtime
 	local uniqueid = self:UniqueID() -- so we can destroy the timer if the player leaves
@@ -79,7 +74,7 @@ function meta:InitiateTax()
 		local tax = (money - (startMoney * 2)) / (startMoney * 198)
 			  tax = math.Min(maxtax, mintax + (maxtax - mintax) * tax)
 
-		self:AddMoney(-tax * money)
+		self:addMoney(-tax * money)
 		GAMEMODE:Notify(self, 3, 7, "Tax day! "..math.Round(tax * 100, 3) .. "% of your income was taken!")
 
 	end)
@@ -90,25 +85,6 @@ function meta:ResetDMCounter()
 	self.kills = 0
 	return true
 end
-
-function meta:TeamUnBan(Team)
-	if not IsValid(self) then return end
-	if not self.bannedfrom then self.bannedfrom = {} end
-	self.bannedfrom[Team] = 0
-end
-
-function meta:TeamBan(t)
-	if not self.bannedfrom then self.bannedfrom = {} end
-	self.bannedfrom[t or self:Team()] = 1
-	timer.Simple(GAMEMODE.Config.demotetime, self.TeamUnBan, self, self:Team())
-end
-
-local CSFiles = {}
-function includeCS(dir)
-	AddCSLuaFile(dir)
-	table.insert(CSFiles, dir)
-end
-
 
 function meta:NewData()
 	if not IsValid(self) then return end
@@ -125,7 +101,7 @@ function meta:NewData()
 
 	self:InitiateTax()
 
-	self:UpdateJob(team.GetName(1))
+	self:updateJob(team.GetName(1))
 
 	self:GetTable().Ownedz = { }
 	self:GetTable().OwnedNumz = 0
@@ -147,158 +123,11 @@ function meta:NewData()
 end
 
 /*---------------------------------------------------------
- Teams/jobs
- ---------------------------------------------------------*/
-function meta:ChangeTeam(t, force)
-	if RPArrestedPlayers[self:SteamID()] and not force then
-		if not self:Alive() then
-			Notify(self, 1, 4, string.format(LANGUAGE.unable, team.GetName(t), ""))
-			return
-		else
-			Notify(self, 1, 4, string.format(LANGUAGE.unable, team.GetName(t), ""))
-			return
-		end
-	end
-	
-	self:SetDarkRPVar("helpBoss",false)
-	self:SetDarkRPVar("helpCop",false)
-	self:SetDarkRPVar("helpMayor",false)
-
-	
-	if t ~= TEAM_CITIZEN and not self:ChangeAllowed(t) and not force then
-		Notify(self, 1, 4, string.format(LANGUAGE.unable, team.GetName(t), "banned/demoted"))
-		return
-	end
-	
-	if self.LastJob and 10 - (CurTime() - self.LastJob) >= 0 and not force then
-		Notify(self, 1, 4, string.format(LANGUAGE.have_to_wait,  math.ceil(10 - (CurTime() - self.LastJob)), "/job"))
-		return 
-	end
-	
-	if self.IsBeingDemoted then
-		self:TeamBan()
-		vote.DestroyVotesWithEnt(self)
-		Notify(self, 1, 4, "You tried to escape demotion. You failed, and have been demoted.")
-	end
-	
-	
-	if self:Team() == t then
-		Notify(self, 1, 4, string.format(LANGUAGE.unable, team.GetName(t), ""))
-		return
-	end
-
-	local TEAM = RPExtraTeams[t]
-	if not TEAM then return end
-	
-	if not self.DarkRPVars["Priv"..TEAM.command] and not force  then
-		if type(TEAM.NeedToChangeFrom) == "number" and self:Team() ~= TEAM.NeedToChangeFrom then
-			Notify(self, 1,4, string.format(LANGUAGE.need_to_be_before, team.GetName(TEAM.NeedToChangeFrom), TEAM.name))
-			return
-		elseif type(TEAM.NeedToChangeFrom) == "table" and not table.HasValue(TEAM.NeedToChangeFrom, self:Team()) then
-			local teamnames = ""
-			for a,b in pairs(TEAM.NeedToChangeFrom) do teamnames = teamnames.." or "..team.GetName(b) end
-			Notify(self, 1,4, string.format(string.sub(teamnames, 5), team.GetName(TEAM.NeedToChangeFrom), TEAM.name))
-			return
-		end
-		if GetConVarNumber("max"..TEAM.command.."s") and GetConVarNumber("max"..TEAM.command.."s") ~= 0 and team.NumPlayers(t) >= GetConVarNumber("max"..TEAM.command.."s")then
-			Notify(self, 1, 4, string.format(LANGUAGE.team_limit_reached, TEAM.name))
-			return
-		end
-	end
-	if self:Team() == TEAM_MAYOR and tobool(GetConVarNumber("DarkRP_LockDown")) then
-		UnLockdown(self)
-	end
-	self:UpdateJob(TEAM.name)
-	DB.StoreSalary(self, TEAM.salary)
-	NotifyAll(0, 4, string.format(LANGUAGE.job_has_become, self:Nick(), TEAM.name))
-	if self.DarkRPVars.HasGunlicense then
-		self:SetDarkRPVar("HasGunlicense", false)
-	end
-	if TEAM.Haslicense and GAMEMODE.Config.license then
-		self:SetDarkRPVar("HasGunlicense", true)
-	end
-	
-	self.LastJob = CurTime()
-	
-	if t == TEAM_POLICE then	
-		self:SetDarkRPVar("helpCop", true)
-	elseif t == TEAM_MOB then
-		self:SetDarkRPVar("helpBoss", true)
-	elseif t == TEAM_MAYOR then
-		self:SetDarkRPVar("helpMayor", true)
-	end
-	
-	if GAMEMODE.Config.removeclassitems then
-		for k, v in pairs(ents.FindByClass("gunlab")) do
-			if v.SID == self.SID then v:Remove() end
-		end
-		
-		if t ~= TEAM_MOB and t ~= TEAM_GANG then
-			for k, v in pairs(ents.FindByClass("drug_lab")) do
-				if v.SID == self.SID then v:Remove() end
-			end
-		end
-		
-		for k,v in pairs(ents.FindByClass("spawned_shipment")) do
-			if v.SID == self.SID then v:Remove() end
-		end
-		
-		for k,v in pairs(ents.FindByClass("pot")) do
-			local owner = (v.dt and v.dt.owning_ent)
-			if owner and owner:IsValid() and owner == self and v.DrugType and v.DrugType == "weed seed" or v.DrugType == "mushroom" then
-				v:Remove()
-			end
-		end
-	end
-	
-	self:SetTeam(t)
-	DB.Log(self:SteamName().." ("..self:SteamID()..") changed to "..team.GetName(t))
-	if self:InVehicle() then self:ExitVehicle() end
-	if GAMEMODE.Config.norespawn and self:Alive() then
-		self:StripWeapons()
-		local vPoint = self:GetShootPos() + Vector(0,0,50)
-		local effectdata = EffectData()
-		effectdata:SetEntity(self)
-		effectdata:SetStart( vPoint ) -- Not sure if we need a start and origin (endpoint) for this effect, but whatever
-		effectdata:SetOrigin( vPoint )
-		effectdata:SetScale(1)
-		util.Effect("entity_remove", effectdata)
-		GAMEMODE:PlayerSetModel(self)
-		GAMEMODE:PlayerLoadout(self)
-	else
-		self:KillSilent()
-	end
-end
-
-function meta:UpdateJob(job)
-	self:setDarkRPVar("job", job)
-	self:GetTable().Pay = 1
-	self:GetTable().LastPayDay = CurTime()
-
-	timer.Create(self:SteamID() .. "jobtimer", GAMEMODE.Config.paydelay, 0, function() self.PayDay(self) end)
-	
-	if LDRP_SH.ChangeJobFuncs[job] then
-		LDRP_SH.ChangeJobFuncs[job](self)
-	end
-end
-
-/*---------------------------------------------------------
  Money
  ---------------------------------------------------------*/
 function meta:CanAfford(amount)
 	if not amount then return false end
 	return math.floor(amount) >= 0 and self.DarkRPVars.money - math.floor(amount) >= 0
-end
-
-function meta:AddMoney(amount)
-	if not amount then return false end
-	local total = self:getDarkRPVar("money") + math.floor(amount)
-	total = hook.Call("PlayerWalletChanged", GAMEMODE, self, amount, self:getDarkRPVar("money")) or total
-
-	self:SetDarkRPVar("money", total)
-
-	if self.DarkRPUnInitialized then return end
-	DB.StoreMoney(self, total)
 end
 
 function meta:PayDay()
@@ -314,7 +143,7 @@ function meta:PayDay()
 					self.CurCheck = (self:IsVIP() and math.Round(amount*1.5)) or amount
 					local Str = "You have a paycheck of $" .. self.CurCheck .. " at the paycheck lady."
 					if !LDRP_SH.UsePaycheckLady then
-						self:AddMoney(self.CurCheck)
+						self:addMoney(self.CurCheck)
 						Str = "You have received a paycheck of $" .. self.CurCheck .. ". It is now in your wallet."
 						self.CurCheck = 0
 						OldCheck = nil
@@ -413,7 +242,7 @@ function meta:DoPropertyTax()
 
 	if self:CanAfford(tax) then
 		if tax ~= 0 then
-			self:AddMoney(-tax)
+			self:addMoney(-tax)
 			Notify(self, 0, 5, string.format(LANGUAGE.property_tax, CUR .. tax))
 		end
 	else

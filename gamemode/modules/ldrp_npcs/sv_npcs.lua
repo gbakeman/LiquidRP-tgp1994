@@ -208,7 +208,7 @@ function LDRP.DrugDealerCMD(ply,cmd,args)
 				end
 				if ply:CanAfford(Cost) then
 					ply:AddItem("weed seed",Amount)
-					ply:AddMoney(-Cost)
+					ply:addMoney(-Cost)
 					ply:LiquidChat("DRUG DEALER", Color(0,180,0), "Bought " .. Amount .. " seed(s) for $" .. Cost)
 				else
 					ply:LiquidChat("DRUG DEALER", Color(0,180,0), "You can't afford " .. Amount .. " seeds (costs $" .. Cost .. ")")
@@ -229,7 +229,7 @@ function LDRP.DrugDealerCMD(ply,cmd,args)
 				end
 				if ply:CanAfford(Cost) then
 					ply:AddItem("mushroom spore",Amount)
-					ply:AddMoney(-Cost)
+					ply:addMoney(-Cost)
 					ply:LiquidChat("DRUG DEALER", Color(0,180,0), "Bought " .. Amount .. " mushroom spores for $" .. Cost)
 				else
 					ply:LiquidChat("DRUG DEALER", Color(0,180,0), "You can't afford " .. Amount .. " mushroom spores (costs $" .. Cost .. ")")
@@ -247,7 +247,7 @@ function LDRP.DrugDealerCMD(ply,cmd,args)
 				local Bags = ply:HasItem("weed bag")
 				if Bags then
 					local Worth = Bags*LDRP_SH.WeedBagWorth
-					ply:AddMoney(Worth)
+					ply:addMoney(Worth)
 					ply:AddItem("weed bag",-Bags)
 					ply:LiquidChat("DRUG DEALER", Color(0,180,0), "Sold " .. Bags .. " bags of bud for $" .. Worth)
 				else
@@ -263,7 +263,7 @@ function LDRP.DrugDealerCMD(ply,cmd,args)
 				local Bags = ply:HasItem("mushroom")
 				if Bags then
 					local Worth = Bags*LDRP_SH.ShroomWorth
-					ply:AddMoney(Worth)
+					ply:addMoney(Worth)
 					ply:AddItem("mushroom",-Bags)
 					ply:LiquidChat("DRUG DEALER", Color(0,180,0), "Sold " .. Bags .. " shrooms for $" .. Worth)
 				else
@@ -288,14 +288,14 @@ function LDRP.BailNPC(ply,cmd,args)
 			return
 		end
 		ply:LiquidChat("BAIL NPC", Color(0,0,200), "Bailed you out for $500")
-		ply:AddMoney(-500)
+		ply:addMoney(-500)
 		ply:Unarrest()
 		for k,v in pairs(team.GetPlayers(TEAM_POLICE)) do
-			v:AddMoney(50)
+			v:addMoney(50)
 			v:LiquidChat("BAIL NPC", Color(0,0,200), "Earned $50 for a bail. You should lock the jail doors.")
 		end
 		for k,v in pairs(team.GetPlayers(TEAM_CHIEF)) do
-			v:AddMoney(50)
+			v:addMoney(50)
 			v:LiquidChat("BAIL NPC", Color(0,0,200), "Earned $50 for a bail. You should lock the jail doors.")
 		end
 		if !ply:Alive() then ply:Spawn() end
@@ -313,7 +313,7 @@ function LDRP.GeneralStore(ply,cmd,args)
 		if Am <= 0 then return end
 		local Cost = Am*LDRP_SH.CarrotSeedPrice
 		if ply:CanAfford(Cost) then
-			ply:AddMoney(-Cost)
+			ply:addMoney(-Cost)
 			ply:AddItem("carrot seed",Am)
 			ply:LiquidChat("GENERAL STORE", Color(0,100,200), "Bought " .. Am .. " carrot seeds for $" .. Cost)
 		else
@@ -324,7 +324,7 @@ function LDRP.GeneralStore(ply,cmd,args)
 		if Carrot then
 			ply:AddItem("carrot",-Carrot)
 			local Earn = Carrot*LDRP_SH.CarrotBuyPrice
-			ply:AddMoney(Earn)
+			ply:addMoney(Earn)
 			ply:LiquidChat("GENERAL STORE", Color(0,100,200), "Sold " .. Carrot .. " carrots for $" .. Earn)
 		else
 			ply:LiquidChat("GENERAL STORE", Color(0,100,200), "Come back when you actually HAVE some carrots.")
@@ -347,7 +347,7 @@ function LDRP.StoreCMD(ply,cmd,args)
 				if ply:CanCarry(Item) then
 					ply:LiquidChat("GAME", Color(0,200,200), "Purchased a " .. Item .. " for $" .. ItemTbl.Cost)
 					ply:AddItem(Item,1)
-					ply:AddMoney(-ItemTbl.Cost)
+					ply:addMoney(-ItemTbl.Cost)
 				else
 					ply:LiquidChat("GAME", Color(0,200,200), "Free up some inventory space before buying this.")
 				end
@@ -362,7 +362,7 @@ function LDRP.StoreCMD(ply,cmd,args)
 				local Worth = Am*ItemTbl.Cost
 				ply:LiquidChat("GAME", Color(0,200,200), "Sold " .. Am .. " " .. Item .. " for $" .. Worth)
 				ply:AddItem(Item,-Am)
-				ply:AddMoney(Worth)
+				ply:addMoney(Worth)
 			else
 				ply:LiquidChat("GAME", Color(0,200,200), "You don't have any of this item to sell.")
 			end

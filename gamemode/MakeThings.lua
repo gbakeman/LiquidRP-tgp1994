@@ -17,34 +17,6 @@ function AddDoorGroup(name, ...)
 end
 
 CustomVehicles = {}
-CustomShipments = {}
-function AddCustomShipment(name, model, entity, price, Amount_of_guns_in_one_shipment, Sold_seperately, price_seperately, noshipment, classes, shipmodel)
-	if not name or not model or not entity or not price or not Amount_of_guns_in_one_shipment or (Sold_seperately and not price_seperately) then
-		local text = "One of the custom shipments is wrongly made! Attempt to give name of the wrongly made shipment!(if it's nil then I failed):\n" .. tostring(name)
-		print(text)
-		hook.Add("PlayerSpawn", "ShipmentError", function(ply)
-			if ply:IsAdmin() then ply:ChatPrint("WARNING: "..text) end end)		
-		return
-	end
-	if SERVER and !util.IsValidModel(model) then
-		local text = "The model of shipment "..name.." is incorrect! can not create custom shipment!"
-		print(text) 
-		hook.Add("PlayerSpawn", "ShipmentError", function(ply)
-			if ply:IsAdmin() then ply:ChatPrint("WARNING: "..text) end end)		
-		return
-	end
-	local AllowedClasses = classes or {}
-	if not classes then
-		for k,v in pairs(team.GetAllTeams()) do
-			table.insert(AllowedClasses, k)
-		end
-	end
-	local price = tonumber(price)
-	local shipmentmodel = shipmodel or "models/Items/item_item_crate.mdl"
-	table.insert(CustomShipments, {name = name, model = model, entity = entity, price = price, weight = 5, amount = Amount_of_guns_in_one_shipment, seperate = Sold_seperately, pricesep = price_seperately, noship = noshipment, allowed = AllowedClasses, shipmodel = shipmentmodel})
-	util.PrecacheModel(model)
-end
-
 function AddCustomVehicle(Name_of_vehicle, model, price, Jobs_that_can_buy_it)
 	local function warn(add)
 		local text
@@ -80,31 +52,6 @@ function GM:CustomObjFitsMap(obj)
 		if string.lower(v) == map then return true end
 	end
 	return false
-end
-
-
-DarkRPEntities = {}
-function AddEntity(name, entity, model, price, max, command, classes, CustomCheck)
-	local tableSyntaxUsed = type(entity) == "table"
-
-	local tblEnt = tableSyntaxUsed and entity or
-		{ent = entity, model = model, price = price, max = max,
-		cmd = command, allowed = classes, customCheck = CustomCheck}
-	tblEnt.name = name
-
-	if type(tblEnt.allowed) == "number" then
-		tblEnt.allowed = {tblEnt.allowed}
-	end
-
-	local corrupt = checkValid(tblEnt, validEntity)
-	if corrupt then ErrorNoHalt("Corrupt Entity \"" .. (name or "") .. "\": element " .. corrupt .. " is corrupt.\n") end
-
-	if SERVER and FPP then
-		FPP.AddDefaultBlocked(blockTypes, tblEnt.ent)
-	end
-
-	table.insert(DarkRPEntities, tblEnt)
-	timer.Simple(0, function() GAMEMODE:AddEntityCommands(tblEnt) end)
 end
 
 DarkRPAgendas = {}

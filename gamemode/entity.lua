@@ -308,7 +308,7 @@ local function OwnDoor(ply)
 			ply:GetTable().Ownedz[trace.Entity:EntIndex()] = nil
 			ply:GetTable().OwnedNumz = math.abs(ply:GetTable().OwnedNumz - 1)
 			local GiveMoneyBack = (((trace.Entity:IsVehicle() and GAMEMODE.Config.vehiclecost) or GAMEMODE.Config.doorcost) * 0.666) + 0.5
-			ply:AddMoney(math.floor(GiveMoneyBack))
+			ply:addMoney(math.floor(GiveMoneyBack))
 			Notify(ply, 0, 4, string.format(LANGUAGE.door_sold,  CUR .. math.floor(math.floor(GiveMoneyBack))))
 			ply.LookingAtDoor = nil
 		else
@@ -329,10 +329,10 @@ local function OwnDoor(ply)
 			end
 
 			if trace.Entity:IsVehicle() then
-				ply:AddMoney(-GAMEMODE.Config.vehiclecost)
+				ply:addMoney(-GAMEMODE.Config.vehiclecost)
 				Notify(ply, 0, 4, string.format(LANGUAGE.vehicle_bought, CUR .. math.floor(GAMEMODE.Config.vehiclecost)))
 			else
-				ply:AddMoney(-GAMEMODE.Config.doorcost)
+				ply:addMoney(-GAMEMODE.Config.doorcost)
 				Notify(ply, 0, 4, string.format(LANGUAGE.door_bought, CUR .. math.floor(GAMEMODE.Config.doorcost)))
 			end
 			trace.Entity:Own(ply)
@@ -365,7 +365,7 @@ local function UnOwnAll(ply, cmd, args)
 			amount = amount + 1
 			v:Fire("unlock", "", 0)
 			v:UnOwn(ply)
-			ply:AddMoney(math.floor(((GAMEMODE.Config.doorcost * 0.66666666666666)+0.5)))
+			ply:addMoney(math.floor(((GAMEMODE.Config.doorcost * 0.66666666666666)+0.5)))
 			ply:GetTable().Ownedz[v:EntIndex()] = nil
 		end
 	end

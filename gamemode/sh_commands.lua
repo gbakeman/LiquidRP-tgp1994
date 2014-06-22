@@ -34,7 +34,7 @@ function GM:AddTeamCommands(CTeam, max)
 				ply:ChangeTeam(k)
 				return ""
 			end
-			if not ply:ChangeAllowed(k) then
+			if not ply:changeAllowed(k) then
 				GAMEMODE:Notify(ply, 1, 4, string.format(LANGUAGE.unable, "/vote"..CTeam.command, "banned/demoted"))
 				return ""
 			end
@@ -174,7 +174,7 @@ function GM:AddEntityCommands(tblEnt)
 			GAMEMODE:Notify(ply, 1, 4, string.format(LANGUAGE.cant_afford, tblEnt.cmd))
 			return ""
 		end
-		ply:AddMoney(-tblEnt.price)
+		ply:addMoney(-tblEnt.price)
 
 		local trace = {}
 		trace.start = ply:EyePos()

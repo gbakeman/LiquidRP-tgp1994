@@ -86,12 +86,12 @@ function LDRP.TradingCMD(ply,cmd,args)
 			end
 			for k,v in pairs(ply.TradeItems) do
 				if v < 1 then continue end
-				if k == "cashh" then if ply:CanAfford(v) then ply:AddMoney(-v) ply.Trading:AddMoney(v) end continue end
+				if k == "cashh" then if ply:CanAfford(v) then ply:addMoney(-v) ply.Trading:addMoney(v) end continue end
 				if ply:HasItem(k,v) then ply:AddItem(k,-v) ply.Trading:AddItem(k,v) end
 			end
 			for k,v in pairs(ply.Trading.TradeItems) do
 				if v < 1 then continue end
-				if k == "cashh" then if ply.Trading:CanAfford(v) then ply.Trading:AddMoney(-v) ply:AddMoney(v) end continue end
+				if k == "cashh" then if ply.Trading:CanAfford(v) then ply.Trading:addMoney(-v) ply:addMoney(v) end continue end
 				if ply.Trading:HasItem(k,v) then ply.Trading:AddItem(k,-v) ply:AddItem(k,v) end
 			end
 			ply:Freeze(false)

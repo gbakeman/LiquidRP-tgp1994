@@ -6,7 +6,7 @@ function LDRP.GetPaycheck(ply,cmd,args)
 	if LDRP_SH.ShopPoses["Paycheck Lady"] and ply:GetPos():Distance(LDRP_SH.ShopPoses["Paycheck Lady"]) < 300 then
 		if ply.CurCheck and ply.CurCheck > 0 then
 			ply:LiquidChat("PAYCHECK", Color(0,192,10), "Earned a paycheck of $" .. ply.CurCheck)
-			ply:AddMoney(ply.CurCheck)
+			ply:addMoney(ply.CurCheck)
 			ply.CurCheck = nil
 		else
 			ply:LiquidChat("PAYCHECK", Color(0,192,10), "Your paycheck is not available!")
@@ -46,7 +46,7 @@ function LDRP.BankCMD(ply,cmd,args)
 			local Am = math.abs(Cash)
 			if ply:CanAfford(Am) then
 				ply:LiquidChat("BANK", Color(0,192,10), "Deposited $" .. Am .. " into your bank.")
-				ply:AddMoney(Cash)
+				ply:addMoney(Cash)
 				ply:AddBMoney(Am)
 			else
 				ply:LiquidChat("BANK", Color(0,192,10), "You don't have enough in your wallet.")
@@ -55,7 +55,7 @@ function LDRP.BankCMD(ply,cmd,args)
 			local Chk = ply:HasBItem("curcash")
 			if Chk and Chk >= Cash then
 				ply:LiquidChat("BANK", Color(0,192,10), "Withdrew $" .. Cash .. " from your bank.")
-				ply:AddMoney(Cash)
+				ply:addMoney(Cash)
 				ply:AddBMoney(-Cash)
 			else
 				ply:LiquidChat("BANK", Color(0,192,10), "You don't have enough in your bank.")

@@ -1,28 +1,185 @@
-AddCustomShipment("Desert eagle", "models/weapons/w_pist_deagle.mdl", "weapon_real_cs_desert_eagle", 215, 10, true, 215, true, {TEAM_GUN})
-AddCustomShipment("Fiveseven", "models/weapons/w_pist_fiveseven.mdl", "weapon_real_cs_five-seven", 0, 10, true, 205, true, {TEAM_GUN})
-AddCustomShipment("Glock", "models/weapons/w_pist_glock18.mdl", "weapon_real_cs_glock18", 0, 10, true, 160, true, {TEAM_GUN})
-AddCustomShipment("P228", "models/weapons/w_pist_p228.mdl", "weapon_real_cs_p228", 0, 10, true, 185, true, {TEAM_GUN})
-AddCustomShipment("USP", "models/weapons/w_pist_usp.mdl", "weapon_real_cs_usp", 0, 10, true, 185, true, {TEAM_GUN})
+--Note: Don't add the galil, dual elites, or g3sg1 - they're meant to be crafted.
 
-AddCustomShipment("Explosive Grenade", "models/weapons/w_eq_fraggrenade.mdl", "weapon_real_cs_grenade", 0, 4, true, 850, true, {TEAM_HEAVYWEP})
-AddCustomShipment("Smoke Grenade", "models/weapons/w_eq_smokegrenade.mdl", "weapon_real_cs_smoke", 0, 4, true, 700, true, {TEAM_HEAVYWEP})
-AddCustomShipment("Flash Grenade", "models/weapons/w_eq_flashbang.mdl", "weapon_real_cs_flash", 0, 4, true, 700, true, {TEAM_HEAVYWEP})
+-- Pistols/one handed
+DarkRP.createShipment("Desert eagle", {
+	model = "models/weapons/w_pist_deagle.mdl",
+	entity = "weapon_real_cs_desert_eagle",
+	price = 215,
+	amount = 10,
+	seperate = true,
+	pricesep = 215,
+	noship = true,
+	allowed = {TEAM_GUN}
+})
 
-AddCustomShipment("Knife", "models/weapons/w_knife_t.mdl", "weapon_real_cs_knife", 0, 4, true, 300, true, {TEAM_GUN})
+DarkRP.createShipment("Fiveseven", {
+	model = "models/weapons/w_pist_fiveseven.mdl",
+	entity = "weapon_real_cs_five-seven",
+	price = 0,
+	amount = 10,
+	seperate = true,
+	pricesep = 205,
+	noship = true,
+	allowed = {TEAM_GUN}
+})
 
-AddCustomShipment("AK47", "models/weapons/w_rif_ak47.mdl", "weapon_real_cs_ak47", 2450, 10, false, nil, false, {TEAM_GUN}) 
-AddCustomShipment("MP5", "models/weapons/w_smg_mp5.mdl", "weapon_real_cs_mp5a5", 2200, 10, false, nil, false, {TEAM_GUN}) 
-AddCustomShipment("M4", "models/weapons/w_rif_m4a1.mdl", "weapon_real_cs_m4a1", 2450, 10, false, nil, false, {TEAM_GUN}) 
-AddCustomShipment("Mac 10", "models/weapons/w_smg_mac10.mdl", "weapon_real_cs_mac10", 2150, 10, false, nil, false, {TEAM_GUN}) 
-AddCustomShipment("Pump shotgun", "models/weapons/w_shot_m3super90.mdl", "weapon_real_cs_pumpshotgun", 1750, 10, false, nil, false, {TEAM_GUN}) 
-AddCustomShipment("Sniper rifle", "models/weapons/w_snip_g3sg1.mdl", "ls_sniper", 3750, 10, false, nil, false, {TEAM_GUN}) 
+DarkRP.createShipment("Glock", {
+	model = "models/weapons/w_pist_glock18.mdl",
+	entity = "weapon_real_cs_glock18",
+	price = 0,
+	amount = 10,
+	seperate = true,
+	pricesep = 160,
+	noship = true,
+	allowed = {TEAM_GUN}
+})
 
---[[AddEntity("Drug lab", "drug_lab", "models/props_lab/crematorcase.mdl", 400, 3, "/buydruglab", {TEAM_GANG, TEAM_MOB})
-AddEntity("Money printer", "money_printer", "models/props_c17/consolebox01a.mdl", 1500, 2, "/buymoneyprinter")
-AddEntity("Money printer cooler", "cooler", "models/nukeftw/faggotbox.mdl", 300, 2, "/buycooler")
-AddEntity("Pot", "pot", "models/nater/weedplant_pot_dirt.mdl", 100, 7, "/buypot")
-AddEntity("Gun lab", "gunlab", "models/props_c17/TrapPropeller_Engine.mdl", 500, 1, "/buygunlab", TEAM_GUN)]]
+DarkRP.createShipment("P228", {
+	model = "models/weapons/w_pist_p228.mdl",
+	entity = "weapon_real_cs_p228",
+	price = 0,
+	amount = 10,
+	seperate = true,
+	pricesep = 185,
+	noship = true,
+	allowed = {TEAM_GUN}
+})
 
+DarkRP.createShipment("USP", {
+	model = "models/weapons/w_pist_usp.mdl",
+	entity = "weapon_real_cs_usp",
+	price = 0,
+	amount = 10,
+	seperate = true,
+	pricesep = 185,
+	noship = true,
+	allowed = {TEAM_GUN}
+})
+
+DarkRP.createShipment("Knife", {
+	model = "models/weapons/w_knife_t.mdl",
+	entity = "weapon_real_cs_knife",
+	price = 0,
+	amount = 4,
+	seperate = true,
+	pricesep = 300,
+	noship = true,
+	allowed = {TEAM_GUN}
+})
+
+--Two handed weapons
+DarkRP.createShipment("AK47", {
+	model = "models/weapons/w_rif_ak47.mdl",
+	entity = "weapon_real_cs_ak47",
+	price = 2450,
+	amount = 10,
+	seperate = false,
+	pricesep = nil,
+	noship = false,
+	allowed = {TEAM_GUN}
+})
+
+DarkRP.createShipment("MP5", {
+	model = "models/weapons/w_smg_mp5.mdl",
+	entity = "weapon_real_cs_mp5a5",
+	price = 2200,
+	amount = 10,
+	seperate = false,
+	pricesep = nil,
+	noship = false,
+	allowed = {TEAM_GUN}
+})
+
+DarkRP.createShipment("M4", {
+	model = "models/weapons/w_rif_m4a1.mdl",
+	entity = "weapon_real_cs_m4a1",
+	price = 2450,
+	amount = 10,
+	seperate = false,
+	pricesep = nil,
+	noship = false,
+	allowed = {TEAM_GUN}
+})
+
+DarkRP.createShipment("Mac 10", {
+	model = "models/weapons/w_smg_mac10.mdl",
+	entity = "weapon_real_cs_mac10",
+	price = 2150,
+	amount = 10,
+	seperate = false,
+	pricesep = nil,
+	noship = false,
+	allowed = {TEAM_GUN}
+})
+
+DarkRP.createShipment("Pump shotgun", {
+	model = "models/weapons/w_shot_m3super90.mdl",
+	entity = "weapon_real_cs_pumpshotgun",
+	price = 1750,
+	amount = 10,
+	seperate = false,
+	pricesep = nil,
+	noship = false,
+	allowed = {TEAM_GUN}
+})
+
+DarkRP.createShipment("Sniper Rifle", {
+	model = "models/weapons/w_snip_g3sg1.mdl",
+	entity = "ls_sniper",
+	price = 3750,
+	amount = 10,
+	seperate = false,
+	pricesep = nil,
+	noship = false,
+	allowed = {TEAM_GUN}
+})
+
+DarkRP.createShipment("SIG SG-500 Automatic Sniper", {
+	model = "models/weapons/w_snip_sg550.mdl",
+	entity = "weapon_real_cs_sg550",
+	price = 3900,
+	amount = 10,
+	seperate = false,
+	pricesep = nil,
+	noship = false,
+	allowed = {TEAM_GUN}
+})
+
+--Tossed weapons
+DarkRP.createShipment("Explosive Grenade", {
+	model = "models/weapons/w_eq_fraggrenade.mdl",
+	entity = "weapon_real_cs_grenade",
+	price = 0,
+	amount = 4,
+	seperate = true,
+	pricesep = 850,
+	noship = true,
+	allowed = {TEAM_HEAVYWEP}
+})
+
+DarkRP.createShipment("Smoke Grenade", {
+	model = "models/weapons/w_eq_smokegrenade.mdl",
+	entity = "weapon_real_cs_smoke",
+	price = 0,
+	amount = 4,
+	seperate = true,
+	pricesep = 700,
+	noship = true,
+	allowed = {TEAM_HEAVYWEP}
+})
+
+DarkRP.createShipment("Flash Grenade", {
+	model = "models/weapons/w_eq_flashbang.mdl",
+	entity = "weapon_real_cs_flash",
+	price = 0,
+	amount = 4,
+	seperate = true,
+	pricesep = 700,
+	noship = true,
+	allowed = {TEAM_HEAVYWEP}
+})
+
+--Entities
 DarkRP.createEntity("Drug lab", {
 	ent = "drug_lab",
 	model = "models/props_lab/crematorcase.mdl",

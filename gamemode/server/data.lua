@@ -617,8 +617,8 @@ concommand.Add("rp_resetallmoney", DB.ResetAllMoney)
 
 function DB.PayPlayer(ply1, ply2, amount)
 	if not IsValid(ply1) or not IsValid(ply2) then return end
-	ply1:AddMoney(-amount)
-	ply2:AddMoney(amount)
+	ply1:addMoney(-amount)
+	ply2:addMoney(amount)
 end
 
 function DB.StoreSalary(ply, amount)

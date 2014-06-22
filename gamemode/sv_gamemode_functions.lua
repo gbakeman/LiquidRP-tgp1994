@@ -54,7 +54,7 @@ function GM:PlayerSpawnProp(ply, model)
 			if GAMEMODE.Config.proppaying then
 				if ply:CanAfford(GAMEMODE.Config.propcost) then
 					Notify(ply, 0, 4, "Deducted " .. CUR .. GAMEMODE.Config.propcost)
-					ply:AddMoney(-GAMEMODE.Config.propcost)
+					ply:addMoney(-GAMEMODE.Config.propcost)
 					return true
 				else
 					Notify(ply, 1, 4, "Need " .. CUR .. GAMEMODE.Config.propcost)
@@ -166,7 +166,7 @@ function GM:OnNPCKilled(victim, ent, weapon)
 
 		-- If we know by now who killed the NPC, pay them. (NPCs kill each other apparently)
 		if IsValid(ent) and ent:IsPlayer() and GAMEMODE.Config.npckillpay > 0 then
-			ent:AddMoney(GAMEMODE.Config.npckillpay)
+			ent:addMoney(GAMEMODE.Config.npckillpay)
 			Notify(ent, 0, 4, string.format(LANGUAGE.npc_killpay, CUR .. GAMEMODE.Config.npckillpay))
 		end
 	end
@@ -368,7 +368,7 @@ function GM:PlayerDeath(ply, weapon, killer)
 		end
 		
 		if amount > 0 then
-			ply:AddMoney(-amount)
+			ply:addMoney(-amount)
 			DarkRPCreateMoneyBag(ply:GetPos(), amount)
 		end
 	end

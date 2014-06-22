@@ -622,10 +622,11 @@ function EntitiesTab()
 				EntPanel:EnableVerticalScrollbar(true)
 					local function AddEntIcon(Model, description, command)
 						local icon
-						if command == "/buymoneyprinter" or command == "/buypot" then
-							icon =	CreateIcon(nil,Model,78,78,function() LocalPlayer():ConCommand("say "..command) end,Vector(20,20,20))
+						local buyCmd = fn.Partial(RunConsoleCommand, "DarkRP", command)
+						if command == "buymoneyprinter" or command == "/buypot" then
+							icon = CreateIcon(nil, Model, 78, 78, buyCmd, Vector(20,20,20))
 						else
-							icon = CreateIcon(nil,Model,78,78,function() LocalPlayer():ConCommand("say "..command) end)
+							icon = CreateIcon(nil, Model,78,78, buyCmd)
 						end
 						icon:SetToolTip(description)
 						EntPanel:AddItem(icon)

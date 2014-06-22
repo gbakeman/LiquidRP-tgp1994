@@ -25,6 +25,9 @@ if (CLIENT) then
 	SWEP.ViewModelFOV		= 60			-- "Y" position of the sweps
 	SWEP.ViewModelFlip	= true		-- Should we flip the sweps?
 	SWEP.CSMuzzleFlashes	= false		-- Should we add a CS Muzzle Flash?
+	
+	-- This is the font that's used to draw the firemod icons
+    --surface.CreateFont("HalfLife2", 30, 500, true, true, "Firemode")
 end
 
 SWEP.Base = "weapon_base"
@@ -287,7 +290,8 @@ function SWEP:DrawHUD()
 		self.mode = "semi"
 	end
 
-	surface.SetFont("Firemode")
+	--surface.SetFont("Firemode")
+	surface.SetFont("WeaponIcons")
 	surface.SetTextPos(surface.ScreenWidth() * .9225, surface.ScreenHeight() * .9125)
 	surface.SetTextColor(255,220,0,100)
 

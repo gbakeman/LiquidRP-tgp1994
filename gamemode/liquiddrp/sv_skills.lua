@@ -14,7 +14,7 @@ function LDRP.UpgradeSkill(ply,cmd,args)
 			end
 			if ply:CanAfford(cost) then
 				ply:LiquidChat("SKILLS", Color(0,0,200), "Bought level " .. nextlvl .. " " .. args[1] .. " for $" .. cost)
-				ply:AddMoney(-cost)
+				ply:addMoney(-cost)
 				ply:GiveLevel(args[1],1)
 			else
 				ply:LiquidChat("SKILLS", Color(0,0,200), "You can't afford this, it costs $" .. cost)
