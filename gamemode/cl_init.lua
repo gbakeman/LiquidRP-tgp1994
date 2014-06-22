@@ -21,7 +21,6 @@ local function LoadModules()
 		end
 	end
 end
-util.PrecacheSound("earthquake.mp3")
 
 LDRP_DLC = {}
 LDRP_DLC.Find = file.Find(GM.FolderName .. "/gamemode/dlc/*.lua", "LUA")
@@ -126,7 +125,6 @@ function GM:ForceDermaSkin()
 end
 
 local function LoadLiquidDarkRP()
-	include("liquiddrp/cl_trading.lua")
 	include("liquiddrp/cl_stores.lua")
 	include("liquiddrp/cl_hud.lua")
 

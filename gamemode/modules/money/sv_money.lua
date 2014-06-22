@@ -217,8 +217,8 @@ local function CreateCheque(ply, args)
 	end)
 	return ""
 end
-DarkRP.defineChatCommand("cheque", CreateCheque, 0.3)
-DarkRP.defineChatCommand("check", CreateCheque, 0.3) -- for those of you who can't spell
+DarkRP.defineChatCommand("cheque", CreateCheque, 0.3) -- for those of you who can't spell
+DarkRP.defineChatCommand("check", CreateCheque, 0.3)
 
 local function ccSetMoney(ply, cmd, args)
 	if not tonumber(args[2]) then

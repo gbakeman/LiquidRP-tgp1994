@@ -167,6 +167,4 @@ function LDRP.AcceptTradeRequest(ply,args)
 	
 	return ""
 end
-AddChatCommand("/accept",LDRP.AcceptTradeRequest)
-
-LDRP_SH.Testerz = LDRP.AcceptTradeRequest
+DarkRP.defineChatCommand("/accept",LDRP.AcceptTradeRequest)

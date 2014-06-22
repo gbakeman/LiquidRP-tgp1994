@@ -3,14 +3,20 @@ AddCSLuaFile("shared.lua")
 
 include("shared.lua")
 
--- These are the default laws, they're unchangeable in-game.
-local Laws = {
-	"Do not attack other citizens except in self-defence.",
-	"Do not steal or break in to peoples homes.",
-	"Money printers/drugs are illegal."
-}
+local Laws = {}
+local FixedLaws = {}
 
-local FixedLaws = table.Copy(Laws)
+timer.Simple(0, function()
+	Laws = table.Copy(GAMEMODE.Config.DefaultLaws)
+	FixedLaws = table.Copy(Laws)
+end)
+
+function DarkRP.hooks:canEditLaws(ply, action, args)
+	if not RPExtraTeams[ply:Team()] or not RPExtraTeams[ply:Team()].mayor then
+		return false, DarkRP.getPhrase("incorrect_job", GAMEMODE.Config.chatCommandPrefix .. action)
+	end
+	return true
+end
 
 function ENT:Initialize()
 	self:SetModel("models/props/cs_assault/Billboard.mdl")
@@ -26,72 +32,115 @@ function ENT:Initialize()
 	end
 end
 
-local function AddLaw(ply, args)
-	if ply:Team() ~= TEAM_MAYOR then
-		GAMEMODE:Notify(ply, 1, 4, "You must be the mayor to set laws!")
+local function addLaw(ply, args)
+	local canEdit, message = hook.Call("canEditLaws", DarkRP.hooks, ply, "addLaw", args)
+
+	if not canEdit then
+		DarkRP.notify(ply, 1, 4, message ~= nil and message or DarkRP.getPhrase("unable", GAMEMODE.Config.chatCommandPrefix .. "addLaw", ""))
+		return ""
+	end
+
+	if not args or args == "" then
+		DarkRP.notify(ply, 1, 4, DarkRP.getPhrase("invalid_x", DarkRP.getPhrase("arguments"), ""))
 		return ""
 	end
 
 	if string.len(args) < 3 then
-		GAMEMODE:Notify(ply, 1, 4, "Law too short.")
+		DarkRP.notify(ply, 1, 4, DarkRP.getPhrase("law_too_short"))
 		return ""
 	end
 
 	if #Laws >= 12 then
-		GAMEMODE:Notify(ply, 1, 4, "The laws are full.")
+		DarkRP.notify(ply, 1, 4, DarkRP.getPhrase("laws_full"))
 		return ""
 	end
 
-	table.insert(Laws, args)
+	local num = table.insert(Laws, args)
 
 	umsg.Start("DRP_AddLaw")
 		umsg.String(args)
 	umsg.End()
 
+	hook.Run("addLaw", num, args)
+
+	DarkRP.notify(ply, 0, 2, DarkRP.getPhrase("law_added"))
+
 	return ""
 end
-AddChatCommand("/addlaw", AddLaw)
+DarkRP.defineChatCommand("addLaw", addLaw)
 
-local function RemoveLaw(ply, args)
-	if ply:Team() ~= TEAM_MAYOR then
-		GAMEMODE:Notify(ply, 1, 4, "You must be the mayor to remove laws!")
+local function removeLaw(ply, args)
+	local canEdit, message = hook.Call("canEditLaws", DarkRP.hooks, ply, "removeLaw", args)
+
+	if not canEdit then
+		DarkRP.notify(ply, 1, 4, message ~= nil and message or DarkRP.getPhrase("unable", GAMEMODE.Config.chatCommandPrefix .. "removeLaw", ""))
 		return ""
 	end
 
-	if not tonumber(args) then
-		GAMEMODE:Notify(ply, 1, 4, "Invalid arguments.")
+	local i = tonumber(args)
+
+	if not i or not Laws[i] then
+		DarkRP.notify(ply, 1, 4, DarkRP.getPhrase("invalid_x", DarkRP.getPhrase("arguments"), ""))
 		return ""
 	end
 
-	if not Laws[ tonumber(args) ] then
-		GAMEMODE:Notify(ply, 1, 4, "Invalid law.")
+	if FixedLaws[i] then
+		DarkRP.notify(ply, 1, 4, DarkRP.getPhrase("default_law_change_denied"))
 		return ""
 	end
 
-	if FixedLaws[ tonumber(args) ] then
-		GAMEMODE:Notify(ply, 1, 4, "You are not allowed to change the default laws.")
-		return ""
-	end
+	local law = Laws[i]
 
-	table.remove(Laws, tonumber(args))
+	table.remove(Laws, i)
 
 	umsg.Start("DRP_RemoveLaw")
-        umsg.Short(tonumber(args))
-    umsg.End()
+		umsg.Short(i)
+	umsg.End()
+
+	hook.Run("removeLaw", i, law)
+
+	DarkRP.notify(ply, 0, 2, DarkRP.getPhrase("law_removed"))
 
 	return ""
 end
-AddChatCommand("/removelaw", RemoveLaw)
+DarkRP.defineChatCommand("removeLaw", removeLaw)
+
+function DarkRP.resetLaws()
+	Laws = table.Copy(FixedLaws)
+
+	umsg.Start("DRP_ResetLaws")
+	umsg.End()
+end
+
+local function resetLaws(ply, args)
+	local canEdit, message = hook.Call("canEditLaws", DarkRP.hooks, ply, "resetLaws", args)
+
+	if not canEdit then
+		DarkRP.notify(ply, 1, 4, message ~= nil and message or DarkRP.getPhrase("unable", GAMEMODE.Config.chatCommandPrefix .. "resetLaws", ""))
+		return ""
+	end
+
+	hook.Run("resetLaws", ply)
+
+	DarkRP.resetLaws()
+
+	DarkRP.notify(ply, 0, 2, DarkRP.getPhrase("law_reset"))
+
+	return ""
+end
+DarkRP.defineChatCommand("resetLaws", resetLaws)
 
 local numlaws = 0
-local function PlaceLaws(ply, args)
-	if ply:Team() ~= TEAM_MAYOR then
-		GAMEMODE:Notify(ply, 1, 4, "You must be the mayor to place a list of laws.")
+local function placeLaws(ply, args)
+	local canEdit, message = hook.Call("canEditLaws", DarkRP.hooks, ply, "placeLaws", args)
+
+	if not canEdit then
+		DarkRP.notify(ply, 1, 4, message ~= nil and message or DarkRP.getPhrase("unable", GAMEMODE.Config.chatCommandPrefix .. "placeLaws", ""))
 		return ""
 	end
 
 	if numlaws >= GAMEMODE.Config.maxlawboards then
-		GAMEMODE:Notify(ply, 1, 4, "You have reached the max number of laws you can place!")
+		DarkRP.notify(ply, 1, 4, DarkRP.getPhrase("limit", GAMEMODE.Config.chatCommandPrefix .. "placeLaws"))
 		return ""
 	end
 
@@ -124,7 +173,7 @@ local function PlaceLaws(ply, args)
 
 	return ""
 end
-AddChatCommand("/placelaws", PlaceLaws)
+DarkRP.defineChatCommand("placeLaws", placeLaws)
 
 function ENT:OnRemove()
 	numlaws = numlaws - 1
@@ -139,3 +188,7 @@ hook.Add("PlayerInitialSpawn", "SendLaws", function(ply)
 		umsg.End()
 	end
 end)
+
+function DarkRP.getLaws()
+	return Laws
+end

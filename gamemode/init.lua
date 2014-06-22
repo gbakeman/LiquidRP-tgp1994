@@ -40,7 +40,6 @@ local function LoadLiquidDarkRP()
 	LiquidInclude("sv","sv_playerfuncs")
 	LiquidInclude("cl","sh_liquiddrp")
 	LiquidInclude("sv","sv_inventory")
-	LiquidInclude("sv","sv_printers")
 	LiquidInclude("sv","sv_bank")
 	LiquidInclude("sv","sv_skills")
 	LiquidInclude("sv","sv_npcs")
@@ -56,9 +55,6 @@ local function LoadLiquidDarkRP()
 	LiquidInclude("cl","cl_qmenu")
 	LiquidInclude("sv","sv_qmenu")
 	
-	LiquidInclude("sv","sv_trading")
-	LiquidInclude("cl","cl_trading")
-	
 	LiquidInclude( "cl", "cl_skills" )
 end
 -------------------------------------------------
@@ -73,18 +69,6 @@ if table.Count(file.Find("*", "cstrike")) == 0 and table.Count(file.Find("cstrik
 		end
 	end)
 end
-
--- RP Name Overrides
-local meta = FindMetaTable("Player")
-
---[[meta.SteamName = meta.SteamName or meta.Name --Fix for stack overflow?
-function meta:Name()
-	return GAMEMODE.Config.allowrpnames and self.DarkRPVars and self:getDarkRPVar("rpname")
-		or self:SteamName()
-end
-meta.Nick = meta.Name
-meta.GetName = meta.Name]]
--- End
 
 RPArrestedPlayers = {}
 
@@ -121,7 +105,6 @@ include("admincc.lua")
 
 include("shared/player_class.lua")
 include("sh_animations.lua")
-include("server/commands.lua")
 include("sh_commands.lua")
 include("entity.lua")
 

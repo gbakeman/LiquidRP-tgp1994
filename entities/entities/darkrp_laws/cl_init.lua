@@ -18,40 +18,55 @@ function ENT:Draw()
 
 		draw.RoundedBox(4, 0, 0, 558, 30, Color(0, 0, 70, 200))
 
-		draw.SimpleText("LAWS OF THE LAND", "TargetID", 279, 5, Color(255, 0, 0, 255), TEXT_ALIGN_CENTER)
+		draw.DrawNonParsedSimpleText(DarkRP.getPhrase("laws_of_the_land"), "TargetID", 279, 5, Color(255, 0, 0, 255), TEXT_ALIGN_CENTER)
 
 		local col = Color(255, 255, 255, 255)
 		local lastHeight = 0
-		for _,v in ipairs(Laws) do
-			draw.DrawText(v, "TargetID", 5, 35 + lastHeight, col)
+		for k,v in ipairs(Laws) do
+			draw.DrawNonParsedText(string.format("%u. %s", k, v), "TargetID", 5, 35 + lastHeight, col)
 			lastHeight = lastHeight + ((fn.ReverseArgs(string.gsub(v, "\n", "")))+1)*21
 		end
 
 	cam.End3D2D()
 end
 
-local function AddLaw(inLaw)
+local function addLaw(inLaw)
 	local law = DarkRP.textWrap(inLaw, "TargetID", 522)
 
-	Laws[#Laws + 1] = (#Laws + 1).. ". " .. law
+	Laws[#Laws + 1] = law
 end
 
-local function AddLawUM(um)
-	AddLaw(um:ReadString())
+local function umAddLaw(um)
+	local law = um:ReadString()
+	timer.Simple(0, fn.Curry(addLaw, 2)(law))
+	hook.Run("addLaw", #Laws + 1, law)
 end
-usermessage.Hook("DRP_AddLaw", AddLawUM)
+usermessage.Hook("DRP_AddLaw", umAddLaw)
 
-local function RemoveLaw(um)
+local function umRemoveLaw(um)
 	local i = um:ReadShort()
 
+	hook.Run("removeLaw", i, Laws[i])
+
 	while i < #Laws do
-		Laws[i] = i .. string.sub(Laws[i+1], (fn.ReverseArgs(string.find(Laws[i+1], "%d%."))))
+		Laws[i] = Laws[i + 1]
 		i = i + 1
 	end
 	Laws[i] = nil
 end
-usermessage.Hook("DRP_RemoveLaw", RemoveLaw)
+usermessage.Hook("DRP_RemoveLaw", umRemoveLaw)
+
+local function umResetLaws(um)
+	Laws = {}
+	fn.Foldl(function(val,v) addLaw(v) end, nil, GAMEMODE.Config.DefaultLaws)
+	hook.Run("resetLaws")
+end
+usermessage.Hook("DRP_ResetLaws", umResetLaws)
+
+function DarkRP.getLaws()
+	return Laws
+end
 
 timer.Simple(0, function()
-	fn.Foldl(function(val,v) AddLaw(v) end, nil, GAMEMODE.Config.DefaultLaws)
+	fn.Foldl(function(val,v) addLaw(v) end, nil, GAMEMODE.Config.DefaultLaws)
 end)

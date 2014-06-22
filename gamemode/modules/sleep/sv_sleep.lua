@@ -1,4 +1,5 @@
-KnockoutTime = 5
+-- very old sleep module
+local KnockoutTime = 5
 
 local function ResetKnockouts(player)
 	player.SleepRagdoll = nil
@@ -6,16 +7,23 @@ local function ResetKnockouts(player)
 end
 hook.Add("PlayerSpawn", "Knockout", ResetKnockouts)
 
+local function stopSleep(ply)
+	if ply.Sleeping then
+		DarkRP.toggleSleep(ply, "force")
+	end
+end
 
-function KnockoutToggle(player, command, args, caller)
+function DarkRP.toggleSleep(player, command)
 	if not player.SleepSound then
 		player.SleepSound = CreateSound(player, "npc/ichthyosaur/water_breath.wav")
 	end
+	local timerName = player:EntIndex() .. "SleepExploit"
 
 	if player:Alive() then
 		if (player.KnockoutTimer and player.KnockoutTimer + KnockoutTime < CurTime()) or command == "force" then
 			if (player.Sleeping and IsValid(player.SleepRagdoll)) then
-				player.OldHunger = player.DarkRPVars.Energy
+				local frozen = player:IsFrozen()
+				player.OldHunger = player:getDarkRPVar("Energy")
 				player.SleepSound:Stop()
 				local ragdoll = player.SleepRagdoll
 				local health = player:Health()
@@ -32,6 +40,7 @@ function KnockoutToggle(player, command, args, caller)
 				player:UnSpectate()
 				player:StripWeapons()
 				ragdoll:Remove()
+				ragdoll.OwnerINT = 0
 				if player.WeaponsForSleep and player:GetTable().BeforeSleepTeam == player:Team() then
 					for k,v in pairs(player.WeaponsForSleep) do
 						local wep = player:Give(v[1])
@@ -48,37 +57,46 @@ function KnockoutToggle(player, command, args, caller)
 						player:SelectWeapon( cl_defaultweapon )
 					end
 					player:GetTable().BeforeSleepTeam = nil
+					player.WeaponsForSleep = nil
 				else
-					GAMEMODE:PlayerLoadout(player)
+					gamemode.Call("PlayerLoadout", player)
 				end
-				player.WeaponsForSleep = {}
+
+				if frozen then
+					player:UnLock()
+					player:Lock()
+				end
 
 				SendUserMessage("blackScreen", player, false)
 
 				if command == true then
-					player:Arrest()
+					player:arrest()
 				end
 				player.Sleeping = false
-				player:SetSelfDarkRPVar("Energy", player.OldHunger)
+				player:setSelfDarkRPVar("Energy", player.OldHunger)
 				player.OldHunger = nil
 
-				if player.DarkRPVars.Arrested then
-					GAMEMODE:SetPlayerSpeed(player, GAMEMODE.Config.arrestspeed, GAMEMODE.Config.arrestspeed )
+				if player:isArrested() then
+					GAMEMODE:SetPlayerSpeed(player, GAMEMODE.Config.arrestspeed, GAMEMODE.Config.arrestspeed)
 				end
-			else
+				timer.Destroy(timerName)
+			elseif not player:IsFrozen() then
+				if IsValid(player:GetObserverTarget()) then return "" end
 				for k,v in pairs(ents.FindInSphere(player:GetPos(), 30)) do
 					if v:GetClass() == "func_door" then
-						GAMEMODE:Notify(player, 1, 4, string.format(LANGUAGE.unable, "sleep", "func_door exploit"))
+						DarkRP.notify(player, 1, 4, DarkRP.getPhrase("unable", "sleep", "func_door exploit"))
 						return ""
 					end
 				end
 
-				player.WeaponsForSleep = {}
-				for k,v in pairs(player:GetWeapons( )) do
-					player.WeaponsForSleep[k] = {v:GetClass(), player:GetAmmoCount(v:GetPrimaryAmmoType()),
-					v:GetPrimaryAmmoType(), player:GetAmmoCount(v:GetSecondaryAmmoType()), v:GetSecondaryAmmoType(),
-					v:Clip1(), v:Clip2()}
-					/*{class, ammocount primary, type primary, ammo count secondary, type secondary, clip primary, clip secondary*/
+				if not player:isArrested() then
+					player.WeaponsForSleep = {}
+					for k,v in pairs(player:GetWeapons()) do
+						player.WeaponsForSleep[k] = {v:GetClass(), player:GetAmmoCount(v:GetPrimaryAmmoType()),
+						v:GetPrimaryAmmoType(), player:GetAmmoCount(v:GetSecondaryAmmoType()), v:GetSecondaryAmmoType(),
+						v:Clip1(), v:Clip2()}
+						/*{class, ammocount primary, type primary, ammo count secondary, type secondary, clip primary, clip secondary*/
+					end
 				end
 				local ragdoll = ents.Create("prop_ragdoll")
 				ragdoll:SetPos(player:GetPos())
@@ -110,17 +128,36 @@ function KnockoutToggle(player, command, args, caller)
 				player.SleepSound = CreateSound(ragdoll, "npc/ichthyosaur/water_breath.wav")
 				player.SleepSound:PlayEx(0.10, 100)
 				player.Sleeping = true
+
+				timer.Create(timerName, 0.3, 0, function()
+					if not IsValid(player) then timer.Destroy(timerName) return end
+
+					if player:GetObserverTarget() ~= ragdoll then
+						if IsValid(ragdoll) then
+							ragdoll:Remove()
+						end
+						stopSleep(player)
+						player.SleepSound:Stop()
+					end
+				end)
+			else
+				DarkRP.notify(player, 1, 4, DarkRP.getPhrase("unable", "/sleep", DarkRP.getPhrase("frozen")))
 			end
+		else
+			DarkRP.notify(player, 1, 4, DarkRP.getPhrase("have_to_wait", math.ceil((player.KnockoutTimer + KnockoutTime) - CurTime()), "/sleep"))
 		end
 		return ""
 	else
-		GAMEMODE:Notify(player, 1, 4, string.format(LANGUAGE.disabled, "/sleep", ""))
+		DarkRP.notify(player, 1, 4, DarkRP.getPhrase("must_be_alive_to_do_x", "/sleep"))
 		return ""
 	end
 end
-AddChatCommand("/sleep", KnockoutToggle)
-AddChatCommand("/wake", KnockoutToggle)
-AddChatCommand("/wakeup", KnockoutToggle)
+DarkRP.defineChatCommand("sleep", DarkRP.toggleSleep)
+DarkRP.defineChatCommand("wake", DarkRP.toggleSleep)
+DarkRP.defineChatCommand("wakeup", DarkRP.toggleSleep)
+
+hook.Add("OnPlayerChangedTeam", "SleepMod", stopSleep)
+
 
 local function DamageSleepers(ent, dmginfo)
 	local inflictor = dmginfo:GetInflictor()
@@ -137,16 +174,10 @@ local function DamageSleepers(ent, dmginfo)
 				end
 				v:SetHealth(v:Health() - amount)
 				if v:Health() <= 0 and v:Alive() then
-					v:Spawn()
-					v:UnSpectate()
-					v:SetPos(ent:GetPos())
-					v:SetHealth(1)
-					v:TakeDamage(1, inflictor, attacker)
-					if v.SleepSound then
-						v.SleepSound:Stop()
-					end
-					ent:Remove()
-					SendUserMessage("blackScreen", player, false)
+					DarkRP.toggleSleep(v, "force")
+					 -- reapply damage to properly kill the player
+					 v:StripWeapons()
+					v:TakeDamageInfo(dmginfo)
 				end
 			end
 		end

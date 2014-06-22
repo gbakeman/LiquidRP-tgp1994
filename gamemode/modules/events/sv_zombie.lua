@@ -20,7 +20,7 @@ local function ControlZombie()
 			timeLeft2 = math.random(150,300)
 			zombieOn = true
 			timer.Start("start2")
-			DarkRP.RetrieveZombies(function()
+			DarkRP.retrieveZombies(function()
 				ZombieStart()
 			end)
 		end
@@ -46,65 +46,67 @@ ZombieEnd = function()
 end
 
 local function LoadTable(ply)
-	ply:SetSelfDarkRPVar("numPoints", table.getn(zombieSpawns))
+	ply:setSelfDarkRPVar("numPoints", table.getn(zombieSpawns))
 
 	for k, v in pairs(zombieSpawns) do
-		ply:SetSelfDarkRPVar("zPoints" .. k, v)
+		ply:setSelfDarkRPVar("zPoints" .. k, v)
 	end
 end
 
 local function ReMoveZombie(ply, index)
-	if ply:HasPriv("rp_commands") then
+	if ply:hasDarkRPPrivilege("rp_commands") then
 		if not index or zombieSpawns[tonumber(index)] == nil then
-			GAMEMODE:Notify(ply, 1, 4, DarkRP.getPhrase("zombie_spawn_not_exist", tostring(index)))
+			DarkRP.notify(ply, 1, 4, DarkRP.getPhrase("zombie_spawn_not_exist", tostring(index)))
 		else
-			DarkRP.RetrieveZombies(function()
-				GAMEMODE:Notify(ply, 0, 4, DarkRP.getPhrase("zombie_spawn_removed"))
+			DarkRP.retrieveZombies(function()
+				DarkRP.notify(ply, 0, 4, DarkRP.getPhrase("zombie_spawn_removed"))
 				table.remove(zombieSpawns, index)
-				DarkRP.StoreZombies()
+				DarkRP.storeZombies()
 				if ply:getDarkRPVar("zombieToggle") then
 					LoadTable(ply)
 				end
 			end)
 		end
 	else
-		GAMEMODE:Notify(ply, 1, 4, DarkRP.getPhrase("need_admin", "/removezombie"))
+		DarkRP.notify(ply, 1, 4, DarkRP.getPhrase("need_admin", "/removezombie"))
 	end
 	return ""
 end
-AddChatCommand("/removezombie", ReMoveZombie)
+DarkRP.defineChatCommand("removezombie", ReMoveZombie)
 
 local function AddZombie(ply)
-	if ply:HasPriv("rp_commands") then
-		DarkRP.RetrieveZombies(function()
+	if ply:hasDarkRPPrivilege("rp_commands") then
+		DarkRP.retrieveZombies(function()
 			table.insert(zombieSpawns, ply:GetPos())
-			DarkRP.StoreZombies()
+			DarkRP.storeZombies()
 			if ply:getDarkRPVar("zombieToggle") then LoadTable(ply) end
-			GAMEMODE:Notify(ply, 0, 4, DarkRP.getPhrase("zombie_spawn_added"))
+			DarkRP.notify(ply, 0, 4, DarkRP.getPhrase("zombie_spawn_added"))
 		end)
 	else
-		GAMEMODE:Notify(ply, 1, 6, DarkRP.getPhrase("need_admin", "/addzombie"))
+		DarkRP.notify(ply, 1, 6, DarkRP.getPhrase("need_admin", "/addzombie"))
 	end
 	return ""
 end
-AddChatCommand("/addzombie", AddZombie)
+DarkRP.defineChatCommand("addzombie", AddZombie)
 
 local function ToggleZombie(ply)
-	if ply:HasPriv("rp_commands") then
+	if ply:hasDarkRPPrivilege("rp_commands") then
 		if not ply:getDarkRPVar("zombieToggle") then
-			DarkRP.RetrieveZombies(function()
-				ply:SetSelfDarkRPVar("zombieToggle", true)
+			DarkRP.retrieveZombies(function()
+				ply:setSelfDarkRPVar("zombieToggle", true)
 				LoadTable(ply)
+				DarkRP.notify(ply, 0, 4, DarkRP.getPhrase("zombie_toggled"))
 			end)
 		else
-			ply:SetSelfDarkRPVar("zombieToggle", false)
+			ply:setSelfDarkRPVar("zombieToggle", false)
+			DarkRP.notify(ply, 0, 4, DarkRP.getPhrase("zombie_toggled"))
 		end
 	else
-		GAMEMODE:Notify(ply, 1, 6, DarkRP.getPhrase("need_admin", "/showzombie"))
+		DarkRP.notify(ply, 1, 6, DarkRP.getPhrase("need_admin", "/showzombie"))
 	end
 	return ""
 end
-AddChatCommand("/showzombie", ToggleZombie)
+DarkRP.defineChatCommand("showzombie", ToggleZombie)
 
 local function GetAliveZombie()
 	local zombieCount = 0
@@ -129,45 +131,49 @@ local function SpawnZombie()
 	Zombie.nodupe = true
 	Zombie:Spawn()
 	Zombie:Activate()
-	Zombie:SetPos(DarkRP.RetrieveRandomZombieSpawnPos())
+	Zombie:SetPos(DarkRP.retrieveRandomZombieSpawnPos())
 end
 
 local function ZombieMax(ply, args)
-	if ply:HasPriv("rp_commands") then
+	if ply:hasDarkRPPrivilege("rp_commands") then
 		if not tonumber(args) then
-			GAMEMODE:Notify(ply, 1, 4, DarkRP.getPhrase("invalid_x", "argument", ""))
+			DarkRP.notify(ply, 1, 4, DarkRP.getPhrase("invalid_x", "argument", ""))
 			return ""
 		end
 		maxZombie = tonumber(args)
-		GAMEMODE:Notify(ply, 0, 4, DarkRP.getPhrase("zombie_maxset", args))
+		DarkRP.notify(ply, 0, 4, DarkRP.getPhrase("zombie_maxset", args))
 	end
 
 	return ""
 end
-AddChatCommand("/zombiemax", ZombieMax)
-AddChatCommand("/maxzombie", ZombieMax)
-AddChatCommand("/maxzombies", ZombieMax)
+DarkRP.defineChatCommand("zombiemax", ZombieMax)
+DarkRP.defineChatCommand("maxzombie", ZombieMax)
+DarkRP.defineChatCommand("maxzombies", ZombieMax)
 
 local function StartZombie(ply)
-	if ply:HasPriv("rp_commands") then
+	if ply:hasDarkRPPrivilege("rp_commands") then
 		timer.Start("zombieControl")
-		GAMEMODE:Notify(ply, 0, 4, DarkRP.getPhrase("zombie_enabled"))
+		DarkRP.notify(ply, 0, 4, DarkRP.getPhrase("zombie_enabled"))
+	else
+		DarkRP.notify(ply, 1, 6, DarkRP.getPhrase("need_admin", "/enablezombie"))
 	end
 	return ""
 end
-AddChatCommand("/enablezombie", StartZombie)
+DarkRP.defineChatCommand("enablezombie", StartZombie)
 
 local function StopZombie(ply)
-	if ply:HasPriv("rp_commands") then
+	if ply:hasDarkRPPrivilege("rp_commands") then
 		timer.Stop("zombieControl")
 		zombieOn = false
 		timer.Stop("start2")
 		ZombieEnd()
-		GAMEMODE:Notify(ply, 0, 4, DarkRP.getPhrase("zombie_disabled"))
+		DarkRP.notify(ply, 0, 4, DarkRP.getPhrase("zombie_disabled"))
+	else
+		DarkRP.notify(ply, 1, 6, DarkRP.getPhrase("need_admin", "/disablezombie"))
 	end
 	return ""
 end
-AddChatCommand("/disablezombie", StopZombie)
+DarkRP.defineChatCommand("disablezombie", StopZombie)
 
 timer.Create("start2", 1, 0, SpawnZombie)
 timer.Create("zombieControl", 1, 0, ControlZombie)
@@ -177,18 +183,6 @@ timer.Stop("zombieControl")
 /*---------------------------------------------------------------------------
 Loading and saving data
 ---------------------------------------------------------------------------*/
-local function createZombiePos()
-	if not zombie_spawn_positions then return end
-	local map = string.lower(game.GetMap())
-
-	DB.Begin()
-		for k, v in pairs(zombie_spawn_positions) do
-			if map == string.lower(v[1]) then
-				MySQLite.query("INSERT INTO "..DB.Prefix.."_position VALUES(NULL, " .. DB.SQLStr(map) .. ", \"Z\", " .. v[2] .. ", " .. v[3] .. ", " .. v[4] .. ");")
-			end
-		end
-	DB.Commit()
-end
 
 local function loadData()
 	local map = MySQLite.SQLStr(string.lower(game.GetMap()))
@@ -197,34 +191,27 @@ local function loadData()
 		for k,v in pairs(data or {}) do
 			table.insert(zombieSpawns, v)
 		end
-
-		if table.Count(zombieSpawns) == 0 then
-			createZombiePos()
-			return
-		end
-
-		jail_positions = nil
 	end)
 end
 hook.Add("DarkRPDBInitialized", "ZombieData", loadData)
 
-function DarkRP.StoreZombies()
+function DarkRP.storeZombies()
 	local map = string.lower(game.GetMap())
-	DB.Begin()
-	DB.Query([[DELETE FROM ]]..DB.Prefix..[[_position WHERE type = 'Z' AND map = ]] .. DB.SQLStr(map) .. ";", function()
+	MySQLite.begin()
+	MySQLite.query([[DELETE FROM ]]..DB.Prefix..[[_position WHERE type = 'Z' AND map = ]] .. MySQLite.SQLStr(map) .. ";", function()
 		for k, v in pairs(zombieSpawns) do
-			DB.Query("INSERT INTO "..DB.Prefix.."_position VALUES(NULL, " .. DB.SQLStr(map) .. ", 'Z', " .. v.x .. ", " .. v.y .. ", " .. v.z .. ");")
+			MySQLite.query("INSERT INTO darkrp_position VALUES(NULL, " .. MySQLite.SQLStr(map) .. ", 'Z', " .. v.x .. ", " .. v.y .. ", " .. v.z .. ");")
 		end
 	end)
-	DB.Commit()
+	MySQLite.commit()
 end
 
 local FirstZombieSpawn = true
-function DarkRP.RetrieveZombies(callback)
+function DarkRP.retrieveZombies(callback)
 	if zombieSpawns and table.Count(zombieSpawns) > 0 and not FirstZombieSpawn then callback() return zombieSpawns end
 	FirstZombieSpawn = false
 	zombieSpawns = {}
-	DB.Query([[SELECT * FROM ]]..DB.Prefix..[[_position WHERE type = 'Z' AND map = ]] .. DB.SQLStr(string.lower(game.GetMap())) .. ";", function(r)
+	MySQLite.query([[SELECT * FROM darkrp_position WHERE type = 'Z' AND map = ]] .. MySQLite.SQLStr(string.lower(game.GetMap())) .. ";", function(r)
 		if not r then callback() return end
 		for k,v in pairs(r) do
 			zombieSpawns[k] = Vector(v.x, v.y, v.z)
@@ -233,11 +220,11 @@ function DarkRP.RetrieveZombies(callback)
 	end)
 end
 
-function DarkRP.RetrieveRandomZombieSpawnPos()
+function DarkRP.retrieveRandomZombieSpawnPos()
 	if #zombieSpawns < 1 then return end
 	local r = table.Random(zombieSpawns)
 
-	local pos = GAMEMODE:FindEmptyPos(r, nil, 200, 10, Vector(2, 2, 2))
+	local pos = DarkRP.findEmptyPos(r, nil, 200, 10, Vector(2, 2, 2))
 
 	return pos
 end

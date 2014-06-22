@@ -1,13 +1,16 @@
+resource.AddFile("sound/earthquake.mp3")
+util.PrecacheSound("earthquake.mp3")
+
 /*---------------------------------------------------------
- Variables
- ---------------------------------------------------------*/
+Variables
+---------------------------------------------------------*/
 local timeLeft = 10
 local stormOn = false
 
 
 /*---------------------------------------------------------
- Meteor storm
- ---------------------------------------------------------*/
+Meteor storm
+---------------------------------------------------------*/
 local function StormStart()
 	for k, v in pairs(player.GetAll()) do
 		if v:Alive() then
@@ -61,25 +64,29 @@ local function StartShower()
 end
 
 local function StartStorm(ply)
-	if ply:HasPriv("rp_commands") then
+	if ply:hasDarkRPPrivilege("rp_commands") then
 		timer.Start("stormControl")
-		GAMEMODE:Notify(ply, 0, 4, DarkRP.getPhrase("meteor_enabled"))
+		DarkRP.notify(ply, 0, 4, DarkRP.getPhrase("meteor_enabled"))
+	else
+		DarkRP.notify(ply, 1, 4, DarkRP.getPhrase("need_admin", "/enablestorm"))
 	end
 	return ""
 end
-AddChatCommand("/enablestorm", StartStorm)
+DarkRP.defineChatCommand("enablestorm", StartStorm)
 
 local function StopStorm(ply)
-	if ply:HasPriv("rp_commands") then
+	if ply:hasDarkRPPrivilege("rp_commands") then
 		timer.Stop("stormControl")
 		stormOn = false
 		timer.Stop("start")
 		StormEnd()
-		GAMEMODE:Notify(ply, 0, 4, DarkRP.getPhrase("meteor_disabled"))
+		DarkRP.notify(ply, 0, 4, DarkRP.getPhrase("meteor_disabled"))
+	else
+		DarkRP.notify(ply, 1, 4, DarkRP.getPhrase("need_admin", "/disablestorm"))
 	end
 	return ""
 end
-AddChatCommand("/disablestorm", StopStorm)
+DarkRP.defineChatCommand("disablestorm", StopStorm)
 
 timer.Create("start", 1, 0, StartShower)
 timer.Create("stormControl", 1, 0, ControlStorm)
@@ -88,8 +95,8 @@ timer.Stop("start")
 timer.Stop("stormControl")
 
 /*---------------------------------------------------------
- Earthquake
- ---------------------------------------------------------*/
+Earthquake
+---------------------------------------------------------*/
 local lastmagnitudes = {} -- The magnitudes of the last tremors
 
 local tremor = ents.Create("env_physexplosion")
@@ -103,10 +110,10 @@ local function TremorReport(mag)
 	local mag = table.remove(lastmagnitudes, 1)
 	if mag then
 		if mag < 6.5 then
-			GAMEMODE:NotifyAll(0, 3, DarkRP.getPhrase("earthtremor_report", tostring(mag)))
+			DarkRP.notifyAll(0, 3, DarkRP.getPhrase("earthtremor_report", tostring(mag)))
 			return
 		end
-		GAMEMODE:NotifyAll(0, 3, DarkRP.getPhrase("earthquake_report", tostring(mag)))
+		DarkRP.notifyAll(0, 3, DarkRP.getPhrase("earthquake_report", tostring(mag)))
 	end
 end
 
@@ -139,3 +146,76 @@ local function EarthQuakeTest()
 	end
 end
 timer.Create("EarthquakeTest", 1, 0, EarthQuakeTest)
+
+/*---------------------------------------------------------
+ Flammable
+---------------------------------------------------------*/
+local flammablePropsKV = { -- Class names as index
+	drug = true,
+	drug_lab = true,
+	food = true,
+	gunlab = true,
+	letter = true,
+	microwave = true,
+	money_printer = true,
+	spawned_shipment = true,
+	spawned_weapon = true,
+	spawned_money = true
+}
+
+local flammableProps = {} -- Numbers as index
+for k,v in pairs(flammablePropsKV) do table.insert(flammableProps, k) end
+
+
+local function IsFlammable(ent)
+	return flammablePropsKV[ent:GetClass()] ~= nil
+end
+
+-- FireSpread from SeriousRP
+local function FireSpread(ent, chanceDiv)
+	if not ent:IsOnFire() then return end
+
+	if ent:isMoneyBag() then
+		ent:Remove()
+	end
+
+	local rand = math.random(0, 300 / chanceDiv)
+
+	if rand > 1 then return end
+	local en = ents.FindInSphere(ent:GetPos(), math.random(20, 90))
+
+	for k, v in pairs(en) do
+		if not IsFlammable(v) or v == ent then continue end
+
+		if not v.burned then
+			v:Ignite(math.random(5,180), 0)
+			v.burned = true
+			break -- Don't ignite all entities in sphere at once, just one at a time
+		end
+
+		local color = v:GetColor()
+		if (color.r - 51) >= 0 then color.r = color.r - 51 end
+		if (color.g - 51) >= 0 then color.g = color.g - 51 end
+		if (color.b - 51) >= 0 then color.b = color.b - 51 end
+		v:SetColor(color)
+		if (color.r + color.g + color.b) < 103 and math.random(1, 100) < 35 then
+			v:Fire("enablemotion","",0)
+			constraint.RemoveAll(v)
+		end
+	end
+end
+
+local function FlammablePropThink()
+	local class = flammableProps[math.random(#flammableProps)]
+	local entities = ents.FindByClass(class)
+	local ent = entities[math.random(#entities)]
+
+	if class ~= "letter" then return end
+
+	if not ent then return end
+
+	 -- The amount of classes and the amount of entities in a class
+	 -- affect the chance of fire spreading. This should be minimized.
+	FireSpread(ent, #entities * #flammableProps)
+end
+timer.Create("FlammableProps", 0.1, 0, FlammablePropThink)

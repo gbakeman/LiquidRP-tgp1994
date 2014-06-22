@@ -34,6 +34,4 @@ function LDRP.UpgradePrinter(ply,fargs)
 	end
 	return ""
 end
-AddChatCommand("/upgrade",LDRP.UpgradePrinter)
-
-
+DarkRP.defineChatCommand("/upgrade", LDRP.UpgradePrinter)

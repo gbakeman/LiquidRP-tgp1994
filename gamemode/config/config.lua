@@ -152,6 +152,8 @@ GM.Config.showcrosshairs				= true
 /*
 Value settings
 */
+-- The time of inactivity before being demoted
+GM.Config.afkdemotetime = 600
 -- hobownership - Enable/Disable hobos being able to buy doors | 1 = Allowed to buy doors, 0 = Not allowed to buy doors
 GM.Config.hobownership 					= 0
 -- adminweapons - Who can spawn weapons: 0: admins only, 1: supadmins only, 2: no one
