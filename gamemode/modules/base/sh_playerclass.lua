@@ -1,6 +1,6 @@
 local PLAYER_CLASS = {}
 
-PLAYER_CLASS.DisplayName = "LiquidDRP Player Class"
+PLAYER_CLASS.DisplayName = "DarkRP Player Class"
 
 local models = {}
 
@@ -19,4 +19,4 @@ function PLAYER_CLASS:GetHandsModel()
 	return player_manager.TranslatePlayerHands(name)
 end
 
-player_manager.RegisterClass("player_LiquidDRP", PLAYER_CLASS, "player_default")
+player_manager.RegisterClass("player_DarkRP", PLAYER_CLASS, "player_default")

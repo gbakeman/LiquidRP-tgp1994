@@ -34,81 +34,6 @@ DarkRP.defineChatCommand("/dropweapon", DropWeapon)
 DarkRP.defineChatCommand("/weapondrop", DropWeapon)
 
 /*---------------------------------------------------------
-Spawning 
- ---------------------------------------------------------*/
-local function SetSpawnPos(ply, args)
-	if not ply:HasPriv("rp_commands") then return "" end
-
-	local pos = string.Explode(" ", tostring(ply:GetPos()))
-	local selection = "citizen"
-	local t
-	
-	for k,v in pairs(RPExtraTeams) do
-		if args == v.command then
-			t = k
-			Notify(ply, 0, 4, string.format(LANGUAGE.created_spawnpos, v.name))
-		end
-	end
-
-	if t then
-		DB.StoreTeamSpawnPos(t, pos)
-	else
-		Notify(ply, 1, 4, string.format(LANGUAGE.could_not_find, "team: "..tostring(args)))
-	end
-
-	return ""
-end
-DarkRP.defineChatCommand("/setspawn", SetSpawnPos)
-
-local function AddSpawnPos(ply, args)
-	if not ply:HasPriv("rp_commands") then return "" end
-
-	local pos = string.Explode(" ", tostring(ply:GetPos()))
-	local selection = "citizen"
-	local t
-	
-	for k,v in pairs(RPExtraTeams) do
-		if args == v.command then
-			t = k
-			Notify(ply, 0, 4, string.format(LANGUAGE.updated_spawnpos, v.name))
-		end
-	end
-
-	if t then
-		DB.AddTeamSpawnPos(t, pos)
-	else
-		Notify(ply, 1, 4, string.format(LANGUAGE.could_not_find, "team: "..tostring(args)))
-	end
-
-	return ""
-end
-DarkRP.defineChatCommand("/addspawn", AddSpawnPos)
-
-local function RemoveSpawnPos(ply, args)
-	if not ply:HasPriv("rp_commands") then return "" end
-
-	local pos = string.Explode(" ", tostring(ply:GetPos()))
-	local selection = "citizen"
-	local t
-	
-	for k,v in pairs(RPExtraTeams) do
-		if args == v.command then
-			t = k
-			Notify(ply, 0, 4, string.format(LANGUAGE.updated_spawnpos, v.name))
-		end
-	end
-
-	if t then
-		DB.RemoveTeamSpawnPos(t)
-	else
-		Notify(ply, 1, 4, string.format(LANGUAGE.could_not_find, "team: "..tostring(args)))
-	end
-
-	return ""
-end
-DarkRP.defineChatCommand("/removespawn", RemoveSpawnPos)
-
-/*---------------------------------------------------------
  Helps
  ---------------------------------------------------------*/
 local function HelpCop(ply)
@@ -154,12 +79,6 @@ function ShowSpare2(ply)
 end
 concommand.Add("gm_spare2", ShowSpare2)
 
-function GM:ShowTeam(ply)
-	umsg.Start("KeysMenu", ply)
-		umsg.Bool(ply:GetEyeTrace().Entity:IsVehicle())
-	umsg.End()
-end
-
 function GM:ShowHelp(ply)
 	ply:SendLua([[RunConsoleCommand("__trd","start")]])
 end
@@ -179,94 +98,6 @@ local function LookPersonUp(ply, cmd, args)
 	ply:PrintMessage(2, "Steam ID: "..P:SteamID())
 end
 concommand.Add("rp_lookup", LookPersonUp)
-
-/*---------------------------------------------------------
- Items
- ---------------------------------------------------------*/
-local function MakeLetter(ply, args, type)
-	if not GAMEMODE.Config.letters then
-		Notify(ply, 1, 4, string.format(LANGUAGE.disabled, "/write / /type", ""))
-		return ""
-	end
-
-	if ply.maxletters and ply.maxletters >= GAMEMODE.Config.maxletters then
-		Notify(ply, 1, 4, string.format(LANGUAGE.limit, "letter"))
-		return ""
-	end
-
-	if CurTime() - ply:GetTable().LastLetterMade < 3 then
-		Notify(ply, 1, 4, string.format(LANGUAGE.have_to_wait, math.ceil(3 - (CurTime() - ply:GetTable().LastLetterMade)), "/write / /type"))
-		return ""
-	end
-
-	ply:GetTable().LastLetterMade = CurTime()
-
-	-- Instruct the player's letter window to open
-
-	local ftext = string.gsub(args, "//", "\n")
-	ftext = string.gsub(ftext, "\\n", "\n") .. "\n\nYours,\n"..ply:Nick()
-	local length = string.len(ftext)
-
-	local numParts = math.floor(length / 39) + 1
-
-	local tr = {}
-	tr.start = ply:EyePos()
-	tr.endpos = ply:EyePos() + 95 * ply:GetAimVector()
-	tr.filter = ply
-	local trace = util.TraceLine(tr)
-
-	local letter = ents.Create("letter")
-	letter:SetModel("models/props_c17/paper01.mdl")
-	letter.dt.owning_ent = ply
-	letter.ShareGravgun = true
-	letter:SetPos(trace.HitPos)
-	letter.nodupe = true
-	letter:Spawn()
-
-	letter:GetTable().Letter = true
-	letter.type = type
-	letter.numPts = numParts
-
-	local startpos = 1
-	local endpos = 39
-	letter.Parts = {}
-	for k=1, numParts do
-		table.insert(letter.Parts, string.sub(ftext, startpos, endpos))
-		startpos = startpos + 39
-		endpos = endpos + 39
-	end
-	letter.SID = ply.SID
-
-	PrintMessageAll(2, string.format(LANGUAGE.created_x, ply:Nick(), "mail"))
-	if not ply.maxletters then
-		ply.maxletters = 0
-	end
-	ply.maxletters = ply.maxletters + 1
-	timer.Simple(600, function() if IsValid(letter) then letter:Remove() end end)
-end
-
-local function WriteLetter(ply, args)
-	if args == "" then return "" end
-	MakeLetter(ply, args, 1)
-	return ""
-end
-DarkRP.defineChatCommand("/write", WriteLetter)
-
-local function TypeLetter(ply, args)
-	if args == "" then return "" end
-	MakeLetter(ply, args, 2)
-	return ""
-end
-DarkRP.defineChatCommand("/type", TypeLetter)
-
-local function RemoveLetters(ply)
-	for k, v in pairs(ents.FindByClass("letter")) do
-		if v.SID == ply.SID then v:Remove() end
-	end
-	Notify(ply, 4, 4, string.format(LANGUAGE.cleaned_up, "mails"))
-	return ""
-end
-DarkRP.defineChatCommand("/removeletters", RemoveLetters)
 
 /*---------------------------------------------------------
  Jobs

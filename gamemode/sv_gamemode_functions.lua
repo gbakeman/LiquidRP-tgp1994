@@ -1,5 +1,3 @@
-util.AddNetworkString("DarkRP_DoorData")
-
 /*---------------------------------------------------------------------------
 DarkRP hooks
 ---------------------------------------------------------------------------*/
@@ -28,10 +26,6 @@ end
 /*---------------------------------------------------------
  Gamemode functions
  ---------------------------------------------------------*/
--- Grammar corrections by Eusion
-function GM:Initialize()
-	self.BaseClass:Initialize()
-end
 
 function GM:PlayerSpawnProp(ply, model)
 	if not self.BaseClass:PlayerSpawnProp(ply, model) then return false end
@@ -81,10 +75,6 @@ local function canSpawnWeapon(ply, class)
 	return false
 end
 
-function GM:PlayerSpawnSENT(ply, model)
-	return self.BaseClass:PlayerSpawnSENT(ply, model) and not RPArrestedPlayers[ply:SteamID()]
-end
-
 function GM:PlayerSpawnSWEP(ply, model)
 	return canSpawnWeapon(ply, class) and self.BaseClass:PlayerSpawnSWEP(ply, model) and not RPArrestedPlayers[ply:SteamID()]
 end
@@ -95,15 +85,6 @@ end
 
 function GM:PlayerSpawnEffect(ply, model)
 	return self.BaseClass:PlayerSpawnEffect(ply, model) and not RPArrestedPlayers[ply:SteamID()]
-end
-
-function GM:PlayerSpawnVehicle(ply, model)
-	return self.BaseClass:PlayerSpawnVehicle(ply, model) and not RPArrestedPlayers[ply:SteamID()]
-end
-
-function GM:PlayerSpawnNPC(ply, model)
-	if GAMEMODE.Config.adminnpcs and not ply:IsAdmin() then return false end
-	return self.BaseClass:PlayerSpawnNPC(ply, model) and not RPArrestedPlayers[ply:SteamID()]
 end
 
 function GM:PlayerSpawnRagdoll(ply, model)
@@ -315,92 +296,6 @@ function GM:DoPlayerDeath(ply, attacker, dmginfo, ...)
 	end
 end
 
-function GM:PlayerDeath(ply, weapon, killer)
-	if GAMEMODE.Config.deathblack then
-		local RP = RecipientFilter()
-		RP:RemoveAllPlayers()
-		RP:AddPlayer(ply)
-		umsg.Start("DarkRPEffects", RP)
-			umsg.String("colormod")
-			umsg.String("1")
-		umsg.End()
-		RP:AddAllPlayers()
-	end
-	if GAMEMODE.Config.deathpov then
-		SendUserMessage("DarkRPEffects", ply, "deathPOV", "1")
-	end
-	UnDrugPlayer(ply)
-
-	if weapon:IsVehicle() and weapon:GetDriver():IsPlayer() then killer = weapon:GetDriver() end
-	
-
-	if GAMEMODE.Config.showdeaths then
-		self.BaseClass:PlayerDeath(ply, weapon, killer)
-	elseif killer:IsPlayer() then
-		for k,v in pairs(player.GetAll()) do
-			if v:IsAdmin() or v:IsUserGroup("Moderator") then
-				v:PrintMessage(HUD_PRINTCONSOLE, ply:Nick().." was killed by "..killer:Name().." with "..weapon:GetClass())
-			end
-		end
-	end
-
-	ply:Extinguish()
-
-	if ply:InVehicle() then ply:ExitVehicle() end
-
-	if RPArrestedPlayers[ply:SteamID()] and not GAMEMODE.Config.respawninjail  then
-		-- If the player died in jail, make sure they can't respawn until their jail sentance is over
-		ply.NextSpawnTime = CurTime() + math.ceil(GAMEMODE.Config.jailtimer - (CurTime() - ply.LastJailed)) + 1
-		for a, b in pairs(player.GetAll()) do
-			b:PrintMessage(HUD_PRINTCENTER, string.format(LANGUAGE.died_in_jail, ply:Nick()))
-		end 
-		Notify(ply, 4, 4, LANGUAGE.dead_in_jail)
-	else
-		-- Normal death, respawning.
-		ply.NextSpawnTime = CurTime() + GAMEMODE.Config.respawntime
-	end
-	ply.DeathPos = ply:GetPos()
-	
-	if GAMEMODE.Config.dropmoneyondeath then
-		local amount = GAMEMODE.Config.deathfee
-		if not ply:CanAfford(GAMEMODE.Config.deathfee) then
-			amount = ply.DarkRPVars.money
-		end
-		
-		if amount > 0 then
-			ply:addMoney(-amount)
-			DarkRPCreateMoneyBag(ply:GetPos(), amount)
-		end
-	end
-
-	if GAMEMODE.Config.dmautokick and killer and killer:IsPlayer() and killer ~= ply then
-		if not killer.kills or killer.kills == 0 then
-			killer.kills = 1
-			timer.Simple(GAMEMODE.Config.dmgracetime, killer.ResetDMCounter, killer)
-		else
-			-- If this player is going over their limit, kick their ass
-			if killer.kills + 1 > GAMEMODE.Config.dmmaxkills then
-				game.ConsoleCommand("kickid " .. killer:UserID() .. " Auto-kicked. Excessive Deathmatching.\n")
-			else
-				-- Killed another player
-				killer.kills = killer.kills + 1
-			end
-		end
-	end
-
-	if IsValid(ply) and (ply ~= killer or ply.Slayed) and not RPArrestedPlayers[ply:SteamID()] then
-		ply:SetDarkRPVar("wanted", false)
-		ply.DeathPos = nil
-		ply.Slayed = false
-	end
-	
-	ply:GetTable().ConfisquatedWeapons = nil
-
-	if weapon:IsPlayer() then weapon = weapon:GetActiveWeapon() killer = killer:SteamName() if ( !weapon || weapon == NULL ) then weapon = killer else weapon = weapon:GetClass() end end
-	if killer == ply then killer = "Himself" weapon = "suicide trick" end
-	DB.Log(ply:SteamName() .. " was killed by "..tostring(killer) .. " with a "..tostring(weapon))
-end
-
 function GM:PlayerCanPickupWeapon(ply, weapon)
 	if weapon.IsUsing and weapon.IsUsing != ply then return false end
 	if RPArrestedPlayers[ply:SteamID()] then return false end
@@ -468,29 +363,6 @@ function GM:PlayerSetModel(ply)
 	ply:SetupHands()
 end
 
-function GM:PlayerInitialSpawn(ply)
-	self.BaseClass:PlayerInitialSpawn(ply)
-	
-	DB.Log(ply:Nick().." ("..ply:SteamID()..") has joined the game")
-	ply.bannedfrom = {}
-	ply.DarkRPVars = ply.DarkRPVars or {}
-	ply:NewData()
-	ply.SID = ply:UserID()
-	
-	for k,v in pairs(ents.GetAll()) do
-		if IsValid(v) and v.deleteSteamID == ply:SteamID() and v.dt then
-			v.SID = ply.SID
-			if v.Setowning_ent then
-				v:Setowning_ent(ply)
-			end
-			v.deleteSteamID = nil
-			timer.Destroy("Remove"..v:EntIndex())
-			ply["max"..v:GetClass()] = (ply["max"..v:GetClass()] or 0) + 1
-			if v.dt and v.Setowning_ent then v:Setowning_ent(ply) end
-		end
-	end
-end
-
 local function formatDarkRPValue(value)
 	if value == nil then return "nil" end
 
@@ -498,148 +370,6 @@ local function formatDarkRPValue(value)
 	if isentity(value) and value:IsPlayer() then return string.format("Entity [%s][Player]", value:EntIndex()) end
 
 	return tostring(value)
-end
-
-function GM:PlayerSelectSpawn(ply)
-	local POS = self.BaseClass:PlayerSelectSpawn(ply)
-	if POS.GetPos then 
-		POS = POS:GetPos()
-	else
-		POS = ply:GetPos()
-	end 
-	
-	
-	local CustomSpawnPos = DB.RetrieveTeamSpawnPos(ply)
-	if GAMEMODE.Config.customspawns and not RPArrestedPlayers[ply:SteamID()] and CustomSpawnPos then
-		POS = CustomSpawnPos[math.random(1, #CustomSpawnPos)]
-	end
-	
-	-- Spawn where died in certain cases
-	if GAMEMODE.Config.strictsuicide and ply:GetTable().DeathPos then
-		POS = ply:GetTable().DeathPos
-	end
-	
-	if RPArrestedPlayers[ply:SteamID()] then
-		POS = DB.RetrieveJailPos() or ply:GetTable().DeathPos -- If we can't find a jail pos then we'll use where they died as a last resort
-	end
-	
-	if not GAMEMODE:IsEmpty(POS) then
-		local found = false
-		for i = 40, 300, 15 do
-			if GAMEMODE:IsEmpty(POS + Vector(i, 0, 0)) then
-				POS = POS + Vector(i, 0, 0)
-				-- Yeah I found a nice position to put the player in!
-				found = true
-				break
-			end
-		end
-		if not found then
-			for i = 40, 300, 15 do
-				if GAMEMODE:IsEmpty(POS + Vector(0, i, 0)) then
-					POS = POS + Vector(0, i, 0)
-					found = true
-					break
-				end
-			end
-		end
-		if not found then
-			for i = 40, 300, 15 do
-				if GAMEMODE:IsEmpty(POS + Vector(0, -i, 0)) then
-					POS = POS + Vector(0, -i, 0)
-					found = true
-					break
-				end
-			end
-		end
-		if not found then
-			for i = 40, 300, 15 do
-				if GAMEMODE:IsEmpty(POS + Vector(-i, 0, 0)) then
-					POS = POS + Vector(-i, 0, 0)
-					-- Yeah I found a nice position to put the player in!
-					found = true
-					break
-				end
-			end
-		end
-		-- If you STILL can't find it, you'll just put him on top of the other player lol
-		if not found then
-			POS = POS + Vector(0,0,70)
-		end
-	end
-	return self.BaseClass:PlayerSelectSpawn(ply), POS
-end
-
-function GM:PlayerSpawn(ply)
-	self.BaseClass:PlayerSpawn(ply)
-	
-	player_manager.SetPlayerClass( ply, "player_LiquidDRP" )
-	
-	ply:CrosshairEnable()
-	ply:UnSpectate()
-	ply:SetHealth(tonumber(GAMEMODE.Config.startinghealth) or 100)
-
-	if not GAMEMODE.Config.showcrosshairs then
-		ply:CrosshairDisable()
-	end
-	
-	SendUserMessage("DarkRPEffects", ply, "deathPOV", "0") -- No checks to prevent bugs
-	
-	-- Kill any colormod
-	local RP = RecipientFilter()
-	RP:RemoveAllPlayers()
-	RP:AddPlayer(ply)
-	umsg.Start("DarkRPEffects", RP)
-		umsg.String("colormod")
-		umsg.String("0")
-	umsg.End()
-	RP:AddAllPlayers()
-
-	if GAMEMODE.Config.babygod and not ply.IsSleeping then
-		ply.Babygod = true
-		ply:GodEnable()
-		local r,g,b,a = ply:GetColor()
-		ply:SetColor(r, g, b, 100)
-		ply:SetCollisionGroup(  COLLISION_GROUP_WORLD )
-		timer.Simple(GAMEMODE.Config.babygodtime, function()
-			if not IsValid(ply) then return end
-			ply.Babygod = false
-			ply:SetColor(r, g, b, a)
-			ply:GodDisable()
-			ply:SetCollisionGroup( COLLISION_GROUP_PLAYER )
-		end)
-	end
-	ply.IsSleeping = false
-	
-	GAMEMODE:SetPlayerSpeed(ply, GAMEMODE.Config.walkspeed, GAMEMODE.Config.runspeed)
-	if ply:Team() == TEAM_CHIEF or ply:Team() == TEAM_POLICE then
-		GAMEMODE:SetPlayerSpeed(ply, GAMEMODE.Config.walkspeed, GAMEMODE.Config.runspeed + 10)
-	end
-	
-	if RPArrestedPlayers[ply:SteamID()] then
-		GAMEMODE:SetPlayerSpeed(ply, GAMEMODE.Config.arrestspeed, GAMEMODE.Config.arrestspeed)
-	end
-
-	ply:Extinguish()
-	if ply:GetActiveWeapon() and IsValid(ply:GetActiveWeapon()) then
-		ply:GetActiveWeapon():Extinguish()
-	end
-	
-	for k,v in pairs(ents.FindByClass("predicted_viewmodel")) do -- Money printer ignite fix
-		v:Extinguish()
-	end
-
-	if ply.demotedWhileDead then
-		ply.demotedWhileDead = nil
-		ply:ChangeTeam(TEAM_CITIZEN)
-	end
-	
-	ply:GetTable().StartHealth = ply:Health()
-	gamemode.Call("PlayerSetModel", ply)
-	gamemode.Call("PlayerLoadout", ply)
-	DB.Log(ply:SteamName().." ("..ply:SteamID()..") spawned")
-	
-	local _, pos = self:PlayerSelectSpawn(ply)
-	ply:SetPos(pos)
 end
 
 local function selectDefaultWeapon(ply)
@@ -724,62 +454,4 @@ function GM:PlayerDisconnected(ply)
 	
 	ply:UnownAll()
 	DB.Log(ply:SteamName().." ("..ply:SteamID()..") disconnected")
-end
-
-local function PlayerDoorCheck()
-	for k, ply in pairs(player.GetAll()) do
-		local trace = ply:GetEyeTrace()
-		if IsValid(trace.Entity) and (trace.Entity:IsDoor() or trace.Entity:IsVehicle()) and ply.LookingAtDoor ~= trace.Entity and trace.HitPos:Distance(ply:GetShootPos()) < 410 then
-			ply.LookingAtDoor = trace.Entity -- Variable that prevents streaming to clients every frame
-			
-			trace.Entity.DoorData = trace.Entity.DoorData or {}
-			
-			local DoorString = "Data:\n"
-			for key, v in pairs(trace.Entity.DoorData) do
-				DoorString = DoorString .. key.."\t\t".. tostring(v) .. "\n"
-			end
-			
-			if not ply.DRP_DoorMemory or not ply.DRP_DoorMemory[trace.Entity] then
-				net.Start("DarkRP_DoorData")
-				net.WriteEntity(trace.Entity)
-				net.WriteTable(trace.Entity.DoorData)
-				net.Send(ply)
-				
-				ply.DRP_DoorMemory = ply.DRP_DoorMemory or {}
-				ply.DRP_DoorMemory[trace.Entity] = table.Copy(trace.Entity.DoorData)
-			else
-				for key, v in pairs(trace.Entity.DoorData) do
-					if not ply.DRP_DoorMemory[trace.Entity][key] or ply.DRP_DoorMemory[trace.Entity][key] ~= v then
-						ply.DRP_DoorMemory[trace.Entity][key] = v
-						umsg.Start("DRP_UpdateDoorData", ply)
-							umsg.Entity(trace.Entity)
-							umsg.String(key)
-							umsg.String(tostring(v))
-						umsg.End()
-					end
-				end
-				
-				for key, v in pairs(ply.DRP_DoorMemory[trace.Entity]) do
-					if not trace.Entity.DoorData[key] then
-						ply.DRP_DoorMemory[trace.Entity][key] = nil
-						umsg.Start("DRP_UpdateDoorData", ply)
-							umsg.Entity(trace.Entity)
-							umsg.String(key)
-							umsg.String("nil")
-						umsg.End()
-					end
-				end
-			end
-		elseif ply.LookingAtDoor ~= trace.Entity then
-			ply.LookingAtDoor = nil
-		end
-	end
-end
-timer.Create("RP_DoorCheck", 0.1, 0, PlayerDoorCheck)
-
-function GM:GetFallDamage( ply, flFallSpeed )
-	if GetConVarNumber("mp_falldamage") == 1 then
-		return flFallSpeed / 15
-	end
-	return 10
 end

@@ -10,7 +10,7 @@ function meta:addMoney(amount)
 	self:setDarkRPVar("money", total)
 
 	if self.DarkRPUnInitialized then return end
-	DB.StoreMoney(self, total)
+	DarkRP.storeMoney(self, total)
 end
 
 function DarkRP.payPlayer(ply1, ply2, amount)

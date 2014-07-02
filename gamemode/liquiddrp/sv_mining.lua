@@ -3,18 +3,6 @@ local LDRP = {}
 LDRP_SH.SpawnedRockPositions = {}
 LDRP.AllRockPositions = {} --Keep track of past and present rock positions, and the rock types
 
-DB:DeclareTable( "rocks", {
-	{
-		name = "map",
-		data_type = "CHAR(128)" },
-	{
-		name = "position",
-		data_type = "CHAR(64)" },
-	{
-		name = "type",
-		data_type = "CHAR(32)" }
-} )
-
 function LDRP.SpawnRock(Type, Position, Override, NoQuery )
 	local Tbl = LDRP_SH.Rocks[Type]
 	if !Tbl then return end
@@ -26,9 +14,23 @@ function LDRP.SpawnRock(Type, Position, Override, NoQuery )
 	if Count >= Tbl.max and !Override then return end
 	
 	local Rock = ents.Create("rock_base")
-	Rock:SetPos(Position)
 	Rock.RockType = Type
 	Rock:Spawn()
+	
+	--Put it in the database if necessary
+	if not NoQuery then --Sorry for the double negative
+		-- Since the rock's position is stored as its center of mass, we need to bump up its
+		-- position by its radius (essentially half of its height)
+		Position:Add( Vector(0, 0, Rock:GetModelRadius()) )
+		MySQLite.query([[INSERT INTO ]]..Prefix..[[_rocks
+			(map, position, type) VALUES ("]] ..
+			game:GetMap() .. [[", "]] ..
+			tostring( Position ) .. [[", "]] ..
+			Type .. [[");]])
+	end
+	
+	Rock:SetPos(Position) --Allow for the position to be adjusted
+	
 	table.insert(LDRP_SH.SpawnedRockPositions, Position)
 	
 	for _, v in ipairs( LDRP.AllRockPositions ) do
@@ -36,19 +38,18 @@ function LDRP.SpawnRock(Type, Position, Override, NoQuery )
 	end
 	--This rock is in a new position.
 	table.insert(LDRP.AllRockPositions, { ["Position"] = Position, ["Type"] = Type })
-	
-	--Put it in the database if necessary
-	if not NoQuery then --Sorry for the double negative
-		DB:StoreEntry( "rocks", {
-			map = "'"..game:GetMap().."'",
-			position = "'"..tostring(Position).."'",
-			type = "'"..Type.."'"
-		} )
-	end
 end
 
 local function InitLoadRocks()
-	DB:RetrieveData( "rocks", "*", "map = '"..game:GetMap().."'", function( data )
+	MySQLite.query([[
+		CREATE TABLE IF NOT EXISTS ]]..Prefix..[[_rocks (
+			map CHAR(128) NOT NULL,
+			position CHAR(64) NOT NULL,
+			type CHAR(32) NOT NULL
+		)
+	]])
+
+	MySQLite.query("SELECT * FROM "..Prefix.."_rocks WHERE map = '" .. game:GetMap() .. "';", function( data )
 		if not data then return end
 		table.foreach( data, function( _, v )
 			local pos = string.Split( v.position, " " )
@@ -74,7 +75,8 @@ function LDRP:RemoveRock( entity )
 	if not foundIndex then return false end --??
 	table.remove( LDRP.AllRockPositions, k )
 	entity:Remove()
-	DB:DeleteEntry( "rocks", "map = '"..game:GetMap().."' AND position = '"..tostring( entPos ).."'" )
+	MySQLite.query("DELETE FROM "..Prefix.."_rocks WHERE map = '".. game:GetMap()
+		.. "' AND position = '" .. tostring( entPos ) .."';")
 	
 	return true
 end

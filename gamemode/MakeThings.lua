@@ -10,12 +10,6 @@ local function checkValid(tbl, requiredItems)
 	end
 end
 
-RPExtraTeamDoors = {}
-
-function AddDoorGroup(name, ...)
-	RPExtraTeamDoors[name] = {...}
-end
-
 CustomVehicles = {}
 function AddCustomVehicle(Name_of_vehicle, model, price, Jobs_that_can_buy_it)
 	local function warn(add)

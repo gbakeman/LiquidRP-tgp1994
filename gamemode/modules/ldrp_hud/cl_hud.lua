@@ -208,6 +208,60 @@ function LDRP.HUDInit()
 end
 hook.Add("InitPostEntity","Loads HUD",LDRP.HUDInit)
 
+/*---------------------------------------------------------------------------
+The Entity display: draw HUD information about entities
+---------------------------------------------------------------------------*/
+local function DrawEntityDisplay()
+	local shouldDraw, players = hook.Call("HUDShouldDraw", GAMEMODE, "DarkRP_EntityDisplay")
+	if shouldDraw == false then return end
+
+	local shootPos = LocalPlayer():GetShootPos()
+	local aimVec = LocalPlayer():GetAimVector()
+
+	for k, ply in pairs(players or player.GetAll()) do
+		if ply == LocalPlayer() or not ply:Alive() then continue end
+		local hisPos = ply:GetShootPos()
+		if ply:getDarkRPVar("wanted") then ply:drawWantedInfo() end
+
+		if GAMEMODE.Config.globalshow then
+			ply:drawPlayerInfo()
+		-- Draw when you're (almost) looking at him
+		elseif hisPos:DistToSqr(shootPos) < 160000 then
+			local pos = hisPos - shootPos
+			local unitPos = pos:GetNormalized()
+			if unitPos:Dot(aimVec) > 0.95 then
+				local trace = util.QuickTrace(shootPos, pos, LocalPlayer())
+				if trace.Hit and trace.Entity ~= ply then return end
+				ply:drawPlayerInfo()
+			end
+		end
+	end
+
+	local tr = LocalPlayer():GetEyeTrace()
+
+	if IsValid(tr.Entity) and tr.Entity:isKeysOwnable() and tr.Entity:GetPos():Distance(LocalPlayer():GetPos()) < 200 then
+		tr.Entity:drawOwnableInfo()
+	end
+end
+
+local AdminTell = function() end
+
+usermessage.Hook("AdminTell", function(msg)
+	print("Getting message!")
+	timer.Destroy("DarkRP_AdminTell")
+	local Message = msg:ReadString()
+
+	AdminTell = function()
+		draw.RoundedBox(4, 10, 10, ScrW() - 20, 110, SKIN.bg_color_dark)
+		draw.DrawNonParsedText(DarkRP.getPhrase("listen_up"), "GModToolName", ScrW() / 2 + 10, 10, SKIN.text_bright, 1)
+		draw.DrawNonParsedText(Message, "ChatFont", ScrW() / 2 + 10, 90, Color( 255, 0, 0, 255), 1)
+	end
+
+	timer.Create("DarkRP_AdminTell", 10, 1, function()
+		AdminTell = function() end
+	end)
+end)
+
 function LDRP.HUDPaint()
 	SKIN = derma.GetDefaultSkin() -- For some reason the SKIN table is not the default skin.
 	local LP = LocalPlayer()
@@ -315,6 +369,9 @@ function LDRP.HUDPaint()
 			end
 		end
 	end
+	
+	DrawEntityDisplay() --Putting this here if the user wants to disable DarkRP's hud module. Door info would not show up otherwise.
+	AdminTell()
 end
 hook.Add("HUDPaint","Liquid DarkRP's HUD",LDRP.HUDPaint)
 
@@ -615,5 +672,3 @@ if !UseFadmin then
 		if TheSB and TheSB:IsValid() then TheSB:Close() end
 	end
 end
-
-

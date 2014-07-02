@@ -45,22 +45,6 @@ function meta:DoTutorial(Type)
 	end
 end
 
---[[---------------------------------------------------------------------------
-	New methods for handling tutorial data - storing it in the database and
-	allowing administrators to create tutorial "points" on the fly.
------------------------------------------------------------------------------]]
-DB:DeclareTable( "tutorials", {
-	{ name = "map",			data_type = "VARCHAR(64)" },
-	{ name = "title",		data_type = "VARCHAR(32)" },
-	{ name = "description",	data_type = "VARCHAR(256)" },
-	{ name = "pos_x",		data_type = "INTEGER"},
-	{ name = "pos_y",		data_type = "INTEGER"},
-	{ name = "pos_z",		data_type = "INTEGER"},
-	{ name = "ang_pitch",	data_type = "INTEGER"},
-	{ name = "ang_yaw",		data_type = "INTEGER"},
-	{ name = "ang_roll",	data_type = "INTEGER"}
-} )
-
 local masterTutorialParts = {}
 --[[---------------------------------------------------------------------------
 	Function: SendTutPartsToPlayer
@@ -115,10 +99,24 @@ end
 
 local function InitLoadTutsFromDB()
 	local map = game.GetMap()
-	DB:RetrieveData( "tutorials", "*", "map = \""..map.."\"", LoadTutorialsFromDB )
+	MySQLite.query("SELECT * FROM "..Prefix.."_tutorials WHERE map = \"" .. map .. "\";", LoadTutorialsFromDB)
 end
 
 hook.Add( "DarkRPDBInitialized", "Load tutorials from DB", function()
+	MySQLite.query([[
+			CREATE TABLE IF NOT EXISTS ]]..Prefix..[[_tutorials(
+				map VARCHAR(64) NOT NULL,
+				title VARCHAR(32) NOT NULL,
+				description VARCHAR(256) NOT NULL,
+				pos_x INTEGER NOT NULL,
+				pos_y INTEGER NOT NULL,
+				pos_z INTEGER NOT NULL,
+				ang_pitch INTEGER NOT NULL,
+				ang_yaw INTEGER NOT NULL,
+				ang_roll INTEGER NOT NULL
+			)
+		]])
+
 	InitLoadTutsFromDB()
 end )
 
@@ -142,8 +140,19 @@ net.Receive( "SaveTutorialPoint", function( length, ply )
 			tbl[k] = SQLStr( v )
 		end
 	end
-		
-	DB:StoreEntry( "tutorials", tbl, function( result )
+	
+	MySQLite.query([[INSERT INTO "..Prefix.."_tutorials (
+		map, title, description, pos_x, pos_y, pos_z, ang_pitch, ang_yaw, ang_roll
+		) VALUES (]] ..
+		tbl[map] .. [[, ]] ..
+		tbl[title] .. [[, ]] ..
+		tbl[description] .. [[, ]] ..
+		tbl[pos_x] .. [[, ]] ..
+		tbl[pos_y] .. [[, ]] ..
+		tbl[pos_z] .. [[, ]] ..
+		tbl[ang_pitch] .. [[, ]] ..
+		tbl[ang_yaw] .. [[, ]] ..
+		tbl[ang_roll] .. [[);]], function( result )
 			if not result then
 				ply:ChatPrint( "Tutorial point saved!" )
 		--Reload saved tutorials, and bcast the new table to all players.
@@ -159,7 +168,7 @@ net.Receive( "DeleteTutPoint", function( length, ply )
 	if not ( ply:IsAdmin() or ply:IsSuperAdmin() ) then return end
 	local tutName = net.ReadString()
 	GAMEMODE:WriteOut( "Receiving request to delete tut point "..tutName.." from "..tostring( ply ), Severity.Debug )
-	DB:DeleteEntry( "tutorials", "title = "..MySQLite.SQLStr(tutName), function( result )
+	MySQLite.query("DELETE FROM "..Prefix.."_tutorials WHERE title = \""..MySQLite.SQLStr(tutName).."\";", function( result )
 		InitLoadTutsFromDB()
 	end )
 end )

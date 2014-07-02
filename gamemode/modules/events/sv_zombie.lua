@@ -187,7 +187,7 @@ Loading and saving data
 local function loadData()
 	local map = MySQLite.SQLStr(string.lower(game.GetMap()))
 
-	MySQLite.query([[SELECT * FROM ]]..DB.Prefix..[[_position WHERE type = 'Z' AND map = ]] .. map .. [[;]], function(data)
+	MySQLite.query([[SELECT * FROM ]]..Prefix..[[_position WHERE type = 'Z' AND map = ]] .. map .. [[;]], function(data)
 		for k,v in pairs(data or {}) do
 			table.insert(zombieSpawns, v)
 		end
@@ -198,7 +198,7 @@ hook.Add("DarkRPDBInitialized", "ZombieData", loadData)
 function DarkRP.storeZombies()
 	local map = string.lower(game.GetMap())
 	MySQLite.begin()
-	MySQLite.query([[DELETE FROM ]]..DB.Prefix..[[_position WHERE type = 'Z' AND map = ]] .. MySQLite.SQLStr(map) .. ";", function()
+	MySQLite.query([[DELETE FROM ]]..Prefix..[[_position WHERE type = 'Z' AND map = ]] .. MySQLite.SQLStr(map) .. ";", function()
 		for k, v in pairs(zombieSpawns) do
 			MySQLite.query("INSERT INTO darkrp_position VALUES(NULL, " .. MySQLite.SQLStr(map) .. ", 'Z', " .. v.x .. ", " .. v.y .. ", " .. v.z .. ");")
 		end

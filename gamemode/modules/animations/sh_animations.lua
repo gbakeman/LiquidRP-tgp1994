@@ -1,12 +1,12 @@
 local Anims = {}
-Anims[ACT_GMOD_GESTURE_BOW] = "Bow"
-Anims[ACT_GMOD_TAUNT_MUSCLE] = "Dance"
-Anims[ACT_GMOD_GESTURE_BECON] = "Follow me!"
-Anims[ACT_GMOD_TAUNT_LAUGH] = "Laugh"
-Anims[ACT_GMOD_TAUNT_PERSISTENCE] = "Lion Pose"
-Anims[ACT_GMOD_GESTURE_DISAGREE] = "Non-verbal no"
-Anims[ACT_GMOD_GESTURE_AGREE] = "Thumbs up"
-Anims[ACT_GMOD_GESTURE_WAVE] = "Wave"
+Anims[ACT_GMOD_GESTURE_BOW] = DarkRP.getPhrase("bow")
+Anims[ACT_GMOD_TAUNT_MUSCLE] = DarkRP.getPhrase("dance")
+Anims[ACT_GMOD_GESTURE_BECON] = DarkRP.getPhrase("follow_me")
+Anims[ACT_GMOD_TAUNT_LAUGH] = DarkRP.getPhrase("laugh")
+Anims[ACT_GMOD_TAUNT_PERSISTENCE] = DarkRP.getPhrase("lion_pose")
+Anims[ACT_GMOD_GESTURE_DISAGREE] = DarkRP.getPhrase("nonverbal_no")
+Anims[ACT_GMOD_GESTURE_AGREE] = DarkRP.getPhrase("thumbs_up")
+Anims[ACT_GMOD_GESTURE_WAVE] = DarkRP.getPhrase("wave")
 
 hook.Add("CalcMainActivity", "darkrp_animations", function(ply, velocity) -- Using hook.Add and not GM:CalcMainActivity to prevent animation problems
 	-- Dropping weapons/money!
@@ -45,7 +45,7 @@ hook.Add("CalcMainActivity", "darkrp_animations", function(ply, velocity) -- Usi
 
 	-- Hobo throwing poop!
 	local Weapon = ply:GetActiveWeapon()
-	if ply:Team() == TEAM_HOBO and not ply.ThrewPoop and IsValid(Weapon) and Weapon:GetClass() == "weapon_bugbait" and ply:KeyDown(IN_ATTACK) then
+	if RPExtraTeams[ply:Team()] and RPExtraTeams[ply:Team()].hobo and not ply.ThrewPoop and IsValid(Weapon) and Weapon:GetClass() == "weapon_bugbait" and ply:KeyDown(IN_ATTACK) then
 		ply.ThrewPoop = true
 		ply:AnimRestartGesture(GESTURE_SLOT_ATTACK_AND_RELOAD, ACT_GMOD_GESTURE_ITEM_THROW, true)
 
@@ -81,6 +81,7 @@ end)
 
 if SERVER then
 	local function CustomAnim(ply, cmd, args)
+		if ply:EntIndex() == 0 then return end
 		local Gesture = tonumber(args[1] or 0)
 		if not Anims[Gesture] then return end
 
@@ -156,12 +157,12 @@ local function AnimationMenu()
 	function Panel:OnMousePressed()
 		AnimFrame:Close()
 	end
-	
+
 	AnimFrame = AnimFrame or vgui.Create("DFrame", Panel)
-	local Height = table.Count(Anims) * 110
-	AnimFrame:SetSize(200, Height)
+	local Height = table.Count(Anims) * 60
+	AnimFrame:SetSize(130, Height)
 	AnimFrame:SetPos(ScrW()/2 + ScrW() * 0.1, ScrH()/2 - (Height/2))
-	AnimFrame:SetTitle("Custom animation!")
+	AnimFrame:SetTitle(DarkRP.getPhrase("custom_animation"))
 	AnimFrame:SetVisible(true)
 	AnimFrame:MakePopup()
 
@@ -172,17 +173,17 @@ local function AnimationMenu()
 	end
 
 	local i = 0
-	for k,v in pairs(Anims) do
+	for k,v in SortedPairs(Anims) do
 		i = i + 1
 		local button = vgui.Create("DButton", AnimFrame)
-		button:SetPos(10, (i-1)*105 + 30)
-		button:SetSize(180, 100)
-		button:SetText(k)
+		button:SetPos(10, (i-1)*55 + 30)
+		button:SetSize(110, 50)
+		button:SetText(v)
 
 		button.DoClick = function()
-			RunConsoleCommand("_DarkRP_DoAnimation", v)
+			RunConsoleCommand("_DarkRP_DoAnimation", k)
 		end
 	end
-	AnimFrame:SetSkin("LiquidDRP2")
+	AnimFrame:SetSkin(GAMEMODE.Config.DarkRPSkin)
 end
 concommand.Add("_DarkRP_AnimationMenu", AnimationMenu)

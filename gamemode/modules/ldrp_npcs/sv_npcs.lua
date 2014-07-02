@@ -5,10 +5,6 @@ LDRP_SH.ShopPoses = {}
 
 function LDRP_SH.CreateNPC(name,pos,ang)
 	if LDRP_SH.ShopPoses[name] or !LDRP_SH.AllNPCs[name] then return end
-	if !LDRP_SH.UsePaycheckLady and name == "Paycheck Lady" then
-		GAMEMODE:WriteOut("Not spawning Paycheck Lady: UsePaycheckLady is false.", Severity.Info)
-		return
-	end
 	
 	local NewNPC = ents.Create("shop_base")
 	NewNPC:SetPos(pos)
@@ -22,36 +18,23 @@ function LDRP_SH.CreateNPC(name,pos,ang)
 	NewNPC:Spawn()
 end
 
-DB:DeclareTable("npc_poses", {
-	{
-		name = "id",
-		data_type = "INTEGER",
-		is_pk = true
-	},
-	{
-		name = "mapname",
-		data_type = "CHAR(128)"
-	},
-	{
-		name = "name",
-		data_type = "CHAR(128)"
-	},
-	{
-		name = "position",
-		data_type = "CHAR(128)"
-	},
-	{
-		name = "angle",
-		data_type = "CHAR(128)"
-	}
-})
 --[[---------------------------------------------------------
 	LoadNPCs - Loads NPC information from a predetermined
 	storage location (in this case, the database) and spawns
 	them, calling CreateNPC().
 -----------------------------------------------------------]]
 function LoadNPCs()
-	DB:RetrieveData("npc_poses", "*", "mapname = '"..game.GetMap().."'", function(data)
+	MySQLite.query([[
+		CREATE TABLE IF NOT EXISTS ]]..Prefix..[[_npc_poses(
+			id INTEGER PRIMARY KEY,
+			mapname CHAR(128) NOT NULL,
+			name CHAR(128) NOT NULL,
+			position CHAR(128) NOT NULL,
+			angle CHAR(128) NOT NULL
+		)
+	]])
+	
+	MySQLite.query("SELECT * FROM "..Prefix.."_npc_poses WHERE mapname = \"" .. game.GetMap() .. "\";", function(data)
 		if type(data) == "table" then
 			for k, v in ipairs(data) do
 				local splitpos = string.Explode(",", v.position)
@@ -63,7 +46,7 @@ function LoadNPCs()
 			end
 			GAMEMODE:WriteOut("Finished loading "..table.Count(LDRP.SavedPoses).." NPC locations from the database.", Severity.Info)
 		elseif data ~= nil then
-			GAMEMODE:WriteOut("An error occured while trying to load the NPCs: "..tostring(data), Severity.Error)
+			GAMEMODE:WriteOut("An error occurred while trying to load the NPCs: "..tostring(data), Severity.Error)
 		end
 	end)
 end
@@ -124,7 +107,7 @@ function LDRP.SetNPCPos(ply,cmd,args)
 	end
 	
 	LDRP.SavedPoses[Type] = nil
-	DB:DeleteEntry("npc_poses", "mapname = '"..game.GetMap().."' AND name = '"..Type.."'")
+	MySQLite.query("DELETE FROM "..Prefix.."_npc_poses WHERE mapname = '"..game.GetMap().."' and name = '"..Type.."';")
 	
 	local pos = ply:GetEyeTrace().HitPos
 	local ang = ply:GetAngles()+Angle(0,180,0)
@@ -136,13 +119,11 @@ function LDRP.SetNPCPos(ply,cmd,args)
 	ply:ChatPrint(Type.." was created.")
 	local serializedpos = pos.X..","..pos.Y..","..pos.Z
 	local serializedang = ang.Pitch..","..ang.Yaw..","..ang.Roll
-	DB:StoreEntry("npc_poses", {
-		id = "NULL",
-		mapname = "'"..game.GetMap().."'",
-		name = "'"..Type.."'",
-		position = "'"..serializedpos.."'",
-		angle = "'"..serializedang.."'"
-	})
+	MySQLite.query([[INSERT INTO "..Prefix.."_npc_poses (mapname, name, position, angle)
+		VALUES ("]] .. game.GetMap() .. 
+		[[", "]] .. Type ..
+		[[", "]] .. serializedpos ..
+		[[", "]] .. serializedang .. [[");]])
 end
 concommand.Add("ldrp_npcpos",LDRP.SetNPCPos)
 
@@ -371,6 +352,7 @@ function LDRP.StoreCMD(ply,cmd,args)
 end
 concommand.Add("__shp",LDRP.StoreCMD)
 
+--This probably shouldn't be here.
 function LDRP.KillMayor(ply,inf,killer)
 	if ply:Team() != TEAM_MAYOR then return end
 	

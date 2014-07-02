@@ -1,17 +1,18 @@
 local Vote = {}
 local Votes = {}
-GM.vote = { }
 
 local function ccDoVote(ply, cmd, args)
+	if ply:EntIndex() == 0 then return end
+
 	local vote = Votes[tonumber(args[1] or 0)]
 
 	if not vote then return end
 	if args[2] ~= "yea" and args[2] ~= "nay" then return end
 
-	local canVote, message = hook.Call("CanVote", GAMEMODE, ply, vote)
+	local canVote, message = hook.Call("canVote", GAMEMODE, ply, vote)
 
 	if vote.voters[ply] or vote.exclude[ply] or canVote == false then
-		GAMEMODE:Notify(ply, 1, 4, message or "You cannot vote!")
+		DarkRP.notify(ply, 1, 4, message or DarkRP.getPhrase("you_cannot_vote"))
 		return
 	end
 	vote.voters[ply] = true
@@ -32,7 +33,8 @@ function Vote:handleNewVote(ply, choice)
 end
 
 function Vote:handleEnd()
-	local win = self.yea > self.nay and 1 or self.nay > self.yea and -1 or 0
+	local win = hook.Call("getVoteResults", nil, self, self.yea, self.nay)
+	win = win or self.yea > self.nay and 1 or self.nay > self.yea and -1 or 0
 
 	umsg.Start("KillVoteVGUI", self:getFilter())
 		umsg.String(self.id)
@@ -49,7 +51,7 @@ function Vote:getFilter()
 
 	for k,v in pairs(player.GetAll()) do
 		if self.exclude[v] then continue end
-		local canVote = hook.Call("CanVote", GAMEMODE, v, self)
+		local canVote = hook.Call("canVote", GAMEMODE, v, self)
 
 		if canVote == false then
 			self.exclude[v] = true
@@ -62,7 +64,7 @@ function Vote:getFilter()
 	return filter
 end
 
-function GM.vote:create(question, voteType, target, time, callback, excludeVoters, fail)
+function DarkRP.createVote(question, voteType, target, time, callback, excludeVoters, fail, extraInfo)
 	excludeVoters = excludeVoters or {[target] = true}
 
 	local newvote = {}
@@ -77,18 +79,19 @@ function GM.vote:create(question, voteType, target, time, callback, excludeVoter
 	newvote.fail = fail or function() end
 	newvote.exclude = excludeVoters
 	newvote.voters = {}
+	newvote.info = extraInfo
 
 	newvote.yea = 0
 	newvote.nay = 0
 
 	if #player.GetAll() <= table.Count(excludeVoters) then
-		GAMEMODE:Notify(target, 0, 4, LANGUAGE.vote_alone)
+		DarkRP.notify(target, 0, 4, DarkRP.getPhrase("vote_alone"))
 		newvote:callback(1)
 		return
 	end
 
 	if target:IsPlayer() then
-		GAMEMODE:Notify(target, 1, 4, LANGUAGE.vote_started)
+		DarkRP.notify(target, 1, 4, DarkRP.getPhrase("vote_started"))
 	end
 
 	umsg.Start("DoVote", newvote:getFilter())
@@ -98,43 +101,61 @@ function GM.vote:create(question, voteType, target, time, callback, excludeVoter
 	umsg.End()
 
 	timer.Create(newvote.id .. "DarkRPVote", time, 1, function() newvote:handleEnd() end)
+
+	return newvote
 end
 
-function GM.vote.DestroyVotesWithEnt(ent)
+function DarkRP.destroyVotesWithEnt(ent)
 	for k, v in pairs(Votes) do
-		if v.Ent == ent then
-			timer.Destroy(v.ID .. "timer")
-			umsg.Start("KillVoteVGUI")
-				umsg.String(v.ID)
-			umsg.End()
-			for a, b in pairs(player.GetAll()) do
-				b.VotesVoted = b.VotesVoted or {}
-				b.VotesVoted[v.ID] = nil
-			end
+		if v.target ~= ent then continue end
 
-			Votes[k] = nil
-		end
+		timer.Destroy(v.id .. "DarkRPVote")
+		umsg.Start("KillVoteVGUI", v:getFilter())
+			umsg.Short(v.id)
+		umsg.End()
+
+		v:fail()
+
+		Votes[k] = nil
 	end
 end
 
-function GM.vote.HandleVoteEnd(id, OnePlayer)
-	if not Votes[id] then return end
+function DarkRP.destroyLastVote()
+	local lastVote = Votes[#Votes]
 
-	local choice = 1
+	if not lastVote then return false end
 
-	if Votes[id][2] >= Votes[id][1] then choice = 2 end
-
-	Votes[id].Callback(choice, Votes[id].Ent)
-	
-	for a, b in pairs(player.GetAll()) do
-		if not b:GetTable().VotesVoted then
-			b:GetTable().VotesVoted = {}
-		end
-		b:GetTable().VotesVoted[id] = nil
-	end
-	umsg.Start("KillVoteVGUI")
-		umsg.String(id)
+	timer.Destroy(lastVote.id .. "DarkRPVote")
+	umsg.Start("KillVoteVGUI", lastVote:getFilter())
+		umsg.Short(lastVote.id)
 	umsg.End()
 
-	Votes[id] = nil
+	lastVote:fail()
+
+	Votes[lastVote.id] = nil
+
+	return true
 end
+
+local function CancelVote(ply, cmd, args)
+	if ply:EntIndex() ~= 0 and not ply:hasDarkRPPrivilege("rp_commands") then
+		ply:PrintMessage(2, DarkRP.getPhrase("need_admin", "rp_cancelvote"))
+		return
+	end
+
+	local result = DarkRP.destroyLastVote()
+
+	if result then
+		DarkRP.notifyAll(0, 4, DarkRP.getPhrase("x_cancelled_vote", ply:EntIndex() ~= 0 and ply:Nick() or "Console"))
+		if ply:EntIndex() == 0 then
+			print(DarkRP.getPhrase("x_cancelled_vote", "Console"))
+		end
+	else
+		if ply:EntIndex() == 0 then
+			print(DarkRP.getPhrase("cant_cancel_vote"))
+		else
+			ply:PrintMessage(2, DarkRP.getPhrase("cant_cancel_vote"))
+		end
+	end
+end
+concommand.Add("rp_cancelvote", CancelVote)

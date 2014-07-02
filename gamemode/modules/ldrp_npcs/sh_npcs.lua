@@ -28,12 +28,6 @@ function LDRP.AddNPC(name,mdl,Team,descrpt,buttons)
 end
 
 hook.Add("loadCustomDarkRPItems", "LiquidRP_AddNPCs", function()
-	LDRP.AddNPC("Paycheck Lady","models/humans/group01/female_01.mdl",nil,"Hello, I hand out paychecks to people.",
-	{
-		["Can I pick my paycheck up?"] = function() RunConsoleCommand("_pcg") end,
-		["I have to go, sorry."] = function() end
-	})
-
 	LDRP_SH.WeedBagWorth = 60
 	LDRP_SH.SeedWorth = 100
 	LDRP_SH.SporeWorth = 40
