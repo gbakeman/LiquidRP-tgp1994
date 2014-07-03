@@ -422,36 +422,3 @@ function GM:PlayerLoadout(ply)
 
 	selectDefaultWeapon(ply)
 end
-
-local RemoveOnDisco = {"money_printer","gunlab","letter","drug_lab","drug"}
-function GM:PlayerDisconnected(ply)
-	self.BaseClass:PlayerDisconnected(ply)
-	timer.Destroy(ply:SteamID() .. "jobtimer")
-	timer.Destroy(ply:SteamID() .. "propertytax")
-	
-	for k, v in pairs( ents.GetAll() ) do
-		if table.HasValue(RemoveOnDisco,v:GetClass()) and v.dt.owning_ent == ply then v:Remove() end
-	end
-	
-	--Put the player's weapons in their inventory so it will save
-	for _, v in ipairs( ply:GetWeapons() ) do
-		local wepType = v:GetClass()
-		if ply:CanCarry( wepType ) then
-			ply:AddItem( wepType, 1 )
-		end
-	end
-	
-	ply:SavePlayer()
-	GAMEMODE.vote.DestroyVotesWithEnt(ply)
-	
-	if ply:Team() == TEAM_MAYOR and tobool(GetConVarNumber("DarkRP_LockDown")) then -- Stop the lockdown
-		UnLockdown(ply)
-	end
-	
-	if ply.SleepRagdoll and IsValid(ply.SleepRagdoll) then
-		ply.SleepRagdoll:Remove()
-	end
-	
-	ply:UnownAll()
-	DB.Log(ply:SteamName().." ("..ply:SteamID()..") disconnected")
-end

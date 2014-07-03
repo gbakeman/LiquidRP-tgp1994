@@ -208,6 +208,44 @@ function LDRP.HUDInit()
 end
 hook.Add("InitPostEntity","Loads HUD",LDRP.HUDInit)
 
+local plyMeta = FindMetaTable("Player")
+-- Draw a player's name, health and/or job above the head
+-- This syntax allows for easy overriding
+plyMeta.drawPlayerInfo = plyMeta.drawPlayerInfo or function(self)
+	local pos = self:EyePos()
+
+	pos.z = pos.z + 10 -- The position we want is a bit above the position of the eyes
+	pos = pos:ToScreen()
+	if not self:getDarkRPVar("wanted") then
+		-- Move the text up a few pixels to compensate for the height of the text
+		pos.y = pos.y - 50
+	end
+
+	if GAMEMODE.Config.showname then
+		local nick, plyTeam = self:Nick(), self:Team()
+		draw.DrawNonParsedText(nick, "DarkRPHUD2", pos.x + 1, pos.y + 1, color_black, 1)
+		draw.DrawNonParsedText(nick, "DarkRPHUD2", pos.x, pos.y, RPExtraTeams[plyTeam].color or team.GetColor(plyTeam) , 1)
+	end
+
+	if GAMEMODE.Config.showhealth then
+		local health = DarkRP.getPhrase("health", self:Health())
+		draw.DrawNonParsedText(health, "DarkRPHUD2", pos.x + 1, pos.y + 21, color_black, 1)
+		draw.DrawNonParsedText(health, "DarkRPHUD2", pos.x, pos.y + 20, Color(255, 255, 255, 200), 1)
+	end
+
+	if GAMEMODE.Config.showjob then
+		local teamname = self:getDarkRPVar("job") or team.GetName(self:Team())
+		draw.DrawNonParsedText(teamname, "DarkRPHUD2", pos.x + 1, pos.y + 41, color_black, 1)
+		draw.DrawNonParsedText(teamname, "DarkRPHUD2", pos.x, pos.y + 40, Color(255, 255, 255, 200), 1)
+	end
+
+	if self:getDarkRPVar("HasGunlicense") then
+		surface.SetMaterial(Page)
+		surface.SetDrawColor(255,255,255,255)
+		surface.DrawTexturedRect(pos.x-16, pos.y + 60, 32, 32)
+	end
+end
+
 /*---------------------------------------------------------------------------
 The Entity display: draw HUD information about entities
 ---------------------------------------------------------------------------*/

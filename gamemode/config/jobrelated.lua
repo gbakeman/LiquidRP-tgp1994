@@ -115,17 +115,33 @@ TEAM_GUN = DarkRP.createJob("Gun Dealer", {
 	hasLicense = false
 })
 
-TEAM_MEDIC = DarkRP.createJob("Medic", {
-	color = Color(47, 79, 79, 255),
-	model = "models/player/kleiner.mdl",
+TEAM_PARAMEDIC = DarkRP.createJob("Paramedic", {
+	color = Color(255, 35, 35, 255),
+	model = {
+		"models/player/group03m/female_01.mdl",
+		"models/player/group03m/female_02.mdl",
+		"models/player/group03m/female_03.mdl",
+		"models/player/group03m/female_04.mdl",
+		"models/player/group03m/female_05.mdl",
+		"models/player/group03m/female_06.mdl",
+		"models/player/group03m/male_01.mdl",
+		"models/player/group03m/male_02.mdl",
+		"models/player/group03m/male_03.mdl",
+		"models/player/group03m/male_04.mdl",
+		"models/player/group03m/male_05.mdl",
+		"models/player/group03m/male_06.mdl",
+		"models/player/group03m/male_07.mdl",
+		"models/player/group03m/male_08.mdl",
+		"models/player/group03m/male_09.mdl"},
 	description = [[With your medical knowledge you work to restore players to full health.
 		Without a medic, people cannot be healed.
+		You are paid a small salary with bonuses for each person brought back to the hospital.
 		Left click with the Medical Kit to heal other players.
 		Right click with the Medical Kit to heal yourself.]],
 	weapons = {"med_kit"},
-	command = "medic",
-	max = 3,
-	salary = GAMEMODE.Config.normalsalary,
+	command = "paramedic",
+	max = 4,
+	salary = GAMEMODE.Config.normalsalary * 0.20,
 	admin = 0,
 	vote = false,
 	hasLicense = false,

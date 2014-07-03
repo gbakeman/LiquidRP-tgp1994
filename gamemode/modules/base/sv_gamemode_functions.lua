@@ -283,6 +283,85 @@ function GM:PlayerSpawn(ply)
 	DarkRP.log(ply:Nick().." ("..ply:SteamID()..") spawned")
 end
 
+/*---------------------------------------------------------------------------
+Remove with a delay if the player doesn't rejoin before the timer has run out
+---------------------------------------------------------------------------*/
+local function removeDelayed(ent, ply)
+	local removedelay = GAMEMODE.Config.entremovedelay
+
+	ent.deleteSteamID = ply:SteamID()
+	timer.Create("Remove"..ent:EntIndex(), removedelay, 1, function()
+		for _, pl in pairs(player.GetAll()) do
+			if IsValid(pl) and IsValid(ent) and pl:SteamID() == ent.deleteSteamID then
+				ent.SID = pl.SID
+				ent.deleteSteamID = nil
+				return
+			end
+		end
+
+		SafeRemoveEntity(ent)
+	end)
+end
+
+function GM:PlayerDisconnected(ply)
+	self.BaseClass:PlayerDisconnected(ply)
+	timer.Destroy(ply:SteamID() .. "jobtimer")
+	timer.Destroy(ply:SteamID() .. "propertytax")
+
+	for k, v in pairs(ents.GetAll()) do
+		local class = v:GetClass()
+		for _, customEnt in pairs(DarkRPEntities) do
+			if class == customEnt.ent and v.SID == ply.SID then
+				removeDelayed(v, ply)
+				break
+			end
+		end
+		if v:IsVehicle() and v.SID == ply.SID then
+			removeDelayed(v, ply)
+		end
+	end
+
+	if ply:isMayor() then
+		for _, ent in pairs(ply.lawboards or {}) do
+			if IsValid(ent) then
+				removeDelayed(ent, ply)
+			end
+		end
+	end
+
+	DarkRP.destroyVotesWithEnt(ply)
+
+	if isMayor and GetGlobalBool("DarkRP_LockDown") then -- Stop the lockdown
+		DarkRP.unLockdown(ply)
+	end
+
+	if isMayor and GAMEMODE.Config.shouldResetLaws then
+		DarkRP.resetLaws()
+	end
+
+	if IsValid(ply.SleepRagdoll) then
+		ply.SleepRagdoll:Remove()
+	end
+
+	ply:keysUnOwnAll()
+	DarkRP.log(ply:Nick().." ("..ply:SteamID()..") disconnected", Color(0, 130, 255))
+
+	local agenda = ply:getAgendaTable()
+
+	-- Clear agenda
+	if agenda and ply:Team() == agenda.Manager and team.NumPlayers(ply:Team()) <= 1 then
+		agenda.text = nil
+		for k,v in pairs(player.GetAll()) do
+			if v:getAgendaTable() ~= agenda then continue end
+			v:setSelfDarkRPVar("agenda", agenda.text)
+		end
+	end
+
+	if RPExtraTeams[ply:Team()] and RPExtraTeams[ply:Team()].PlayerDisconnected then
+		RPExtraTeams[ply:Team()].PlayerDisconnected(ply)
+	end
+end
+
 function GM:GetFallDamage( ply, flFallSpeed )
 	if GetConVarNumber("mp_falldamage") == 1 or GAMEMODE.Config.realisticfalldamage then
 		if GAMEMODE.Config.falldamagedamper then return flFallSpeed / GAMEMODE.Config.falldamagedamper else return flFallSpeed / 15 end
