@@ -45,14 +45,8 @@ GWEN.CreateTextureBorder = function( _x, _y, _w, _h, l, t, r, b, colMod )
 		--Modify the texture's color by subtracting the difference between it and
 		--one of the colors from this skin.
 		local skinCol = colMod or LDRP_Theme[LDRP_Theme.CurrentSkin].IconBG
-		if not col then col = Color( 255, 255, 255, 255 ) end
-		local newCol = Color(
-			col.r - ( col.r - skinCol.r ),
-			col.g - ( col.g - skinCol.g ),
-			col.b - ( col.b - skinCol.b ),
-			col.a - ( col.a - skinCol.a ) )
 
-		return otherFunc( x, y, w, h, newCol )
+		return otherFunc( x, y, w, h, colMod )
 	end
 	
 	return modifyFunc
@@ -82,7 +76,7 @@ function RefreshSkin()
 	SKIN.control_color_highlight	= Color( MC(CC.r+40), MC(CC.g+40), MC(CC.b+40), MC(CC.a+20) )
 	SKIN.control_color_active 		= Color( MC(CC.r+20), MC(CC.g+20), MC(CC.b+20), MC(CC.a+20) )
 	SKIN.control_color_bright 		= Color( MC(CC.r+20), MC(CC.g+20), MC(CC.b+20), MC(CC.a+45) )
-	SKIN.control_color_dark 		= Color( MC(CC.r-80), MC(CC.g-80), MC(CC.b-80), MC(CC.a-20) )
+	SKIN.control_color_dark 		= Color( MC(CC.r-40), MC(CC.g-40), MC(CC.b-40), MC(CC.a+40) )
 
 	local AltBG = LDRP_Theme[LDRP_Theme.CurrentSkin].AltBG
 	SKIN.bg_alt1 					= LDRP_Theme[LDRP_Theme.CurrentSkin].AltBG
@@ -94,7 +88,7 @@ function RefreshSkin()
 	local TX = LDRP_Theme[LDRP_Theme.CurrentSkin].Txt
 	SKIN.text_bright				= Color( MC(TX.r+50), MC(TX.g+50), MC(TX.b+50), MC(TX.a+20) )
 	SKIN.text_normal				= TX
-	SKIN.text_dark					= Color( MC(TX.r-80), MC(TX.g-80), MC(TX.b-80), MC(TX.a+30) )
+	SKIN.text_dark					= Color( MC(TX.r-40), MC(TX.g-40), MC(TX.b-40), MC(TX.a+40) )
 	SKIN.text_highlight				= Color( MC(TX.r-30), MC(TX.g-30), MC(TX.b-30), MC(TX.a-20) )
 	
 	SKIN.text_outline				= LDRP_Theme[LDRP_Theme.CurrentSkin].TradeMenu
@@ -152,9 +146,10 @@ function RefreshSkin()
 	SKIN.tex.CheckboxD                    = GWEN.CreateTextureNormal( 464, 48, 15, 15 )
 
 	SKIN.tex.CategoryList = {}
-	SKIN.tex.CategoryList.Outer        = GWEN.CreateTextureBorder( 256,        384, 63, 63, 8, 8, 8, 8, SKIN.control_color );
-
-
+	SKIN.tex.CategoryList.Outer		= GWEN.CreateTextureBorder( 256,		384, 63, 63, 8, 8, 8, 8, SKIN.control_color_dark );
+	SKIN.tex.CategoryList.Inner		= GWEN.CreateTextureBorder( 256 + 64,	384, 63, 63, 8, 21, 8, 8, SKIN.control_color_bright );
+	SKIN.tex.CategoryList.Header	= GWEN.CreateTextureBorder( 320,		352, 63, 31, 8, 8, 8, 8, SKIN.control_color_highlight );
+	
 	SKIN.tex.Input = {}
 
 	SKIN.tex.Input.ComboBox = {}
@@ -192,6 +187,12 @@ function RefreshSkin()
 	SKIN.tex.Menu.RightArrow                = GWEN.CreateTextureNormal( 464, 112, 15, 15 );
 
 	SKIN.tex.Menu_Strip					= GWEN.CreateTextureBorder( 0, 128, 127, 21,        8, 8, 8, 8)
+	
+	SKIN.tex.Panels = {}
+	SKIN.tex.Panels.Normal	= GWEN.CreateTextureBorder( 256,	0,	63,	63,	16,	16,	16,	16)
+	SKIN.tex.Panels.Bright	= GWEN.CreateTextureBorder( 256+64,	0,	63,	63,	16,	16,	16,	16 )
+	SKIN.tex.Panels.Dark	= GWEN.CreateTextureBorder( 256,	64,	63,	63,	16,	16,	16,	16 )
+	SKIN.tex.Panels.Highlight	= GWEN.CreateTextureBorder( 256+64,	64,	63,	63,	16,	16,	16,	16 )
 
 	SKIN.tex.ProgressBar = {}
 	SKIN.tex.ProgressBar.Back        		= GWEN.CreateTextureBorder( 384,    0, 31, 31, 8, 8, 8, 8 );
@@ -253,14 +254,14 @@ function RefreshSkin()
 	SKIN.Colours.Category.Line.Text				= SKIN.text_normal
 	SKIN.Colours.Category.Line.Text_Hover		= GWEN.TextureColor( 4 + 8 * 21, 508 );
 	SKIN.Colours.Category.Line.Text_Selected	= GWEN.TextureColor( 4 + 8 * 20, 500 );
-	SKIN.Colours.Category.Line.Button			= GWEN.TextureColor( 4 + 8 * 21, 500 );
+	SKIN.Colours.Category.Line.Button			= SKIN.control_color;
 	SKIN.Colours.Category.Line.Button_Hover		= GWEN.TextureColor( 4 + 8 * 22, 508 );
 	SKIN.Colours.Category.Line.Button_Selected	= GWEN.TextureColor( 4 + 8 * 23, 508 );
 	SKIN.Colours.Category.LineAlt = {}
 	SKIN.Colours.Category.LineAlt.Text				= SKIN.text_dark
 	SKIN.Colours.Category.LineAlt.Text_Hover		= GWEN.TextureColor( 4 + 8 * 23, 500 );
 	SKIN.Colours.Category.LineAlt.Text_Selected		= GWEN.TextureColor( 4 + 8 * 24, 508 );
-	SKIN.Colours.Category.LineAlt.Button			= GWEN.TextureColor( 4 + 8 * 25, 508 );
+	SKIN.Colours.Category.LineAlt.Button			= SKIN.control_color_dark;
 	SKIN.Colours.Category.LineAlt.Button_Hover		= GWEN.TextureColor( 4 + 8 * 24, 500 );
 	SKIN.Colours.Category.LineAlt.Button_Selected	= GWEN.TextureColor( 4 + 8 * 25, 500 );
 	
@@ -334,21 +335,9 @@ function RefreshSkin()
 		surface.SetMaterial( matBlurScreen )
 		surface.SetDrawColor( 255, 255, 255, 255 )
 			
-		--[[local x1, y1 = panel:LocalToScreen( 2, 2 )
-		local x2, y2 = panel:LocalToScreen( WD - 2, TL - 2 )
-		x1 = x1 + 5 y1 = y1 + 5
-		x2 = x2 - 5 y2 = y2 - 5]]
-			
 		matBlurScreen:SetFloat( "$blur", 5 )
 		render.UpdateScreenEffectTexture()
-		--[[surface.DrawPoly( {
-			{ x = 2, y = 2, u = x1/ScrW(), v = y1/ScrH() },
-			{ x = WD - 4, y = 2, u = x2/ScrW(), v = y1/ScrH() },
-			{ x = WD - 4, y = TL - 2, u = x2/ScrW(), v = y2/ScrH() },
-			{ x = 2, y = TL - 2, u = x1/ScrW(), v = y2/ScrH() }
-		} )]]
 		
-	   -- draw.RoundedBox( 4, 1, 1, panel:GetWide()-2, panel:GetTall()-2, self.frame_title )
 	   draw.RoundedBoxEx( 4, 2, 21, WD-4, TL-23, self.bg_color, false, false, true, true )
 
 	end
@@ -373,20 +362,6 @@ function RefreshSkin()
 		surface.SetDrawColor( 0, 0, 0, 150 )
 		surface.DrawOutlinedRect( x, y, w, h )
 		
-	end
-
-	/*---------------------------------------------------------
-		SysButton
-	---------------------------------------------------------*/
-	function SKIN:PaintPanel( panel )
-
-		if ( panel.m_bPaintBackground ) then
-		
-			local w, h = panel:GetSize()
-			self:DrawGenericBackground( 0, 0, w, h, panel.m_bgColor or self.panel_transback )
-			
-		end    
-
 	end
 
 	/*---------------------------------------------------------
@@ -725,41 +700,6 @@ function RefreshSkin()
 	end
 
 	/*---------------------------------------------------------
-		Label
-	---------------------------------------------------------*/
-	--[[function SKIN:PaintLabel( panel )
-		return false
-	end
-
-	function SKIN:SchemeLabel( panel )
-
-		local col = nil
-
-		if ( panel.Hovered && panel:GetTextColorHovered() ) then
-			col = panel:GetTextColorHovered()
-		else
-			col = panel:GetTextColor()
-		end
-		
-		if ( col ) then
-			panel:SetFGColor( col.r, col.g, col.b, col.a )
-		else
-			panel:SetFGColor( 200, 200, 200, 255 )
-		end
-
-	end
-
-	function SKIN:LayoutLabel( panel )
-
-		panel:ApplySchemeSettings()
-		
-		if ( panel.m_bAutoStretchVertical ) then
-			panel:SizeToContentsY()
-		end
-		
-	end]]
-
-	/*---------------------------------------------------------
 		CategoryHeader
 	---------------------------------------------------------*/
 	function SKIN:PaintCategoryHeader( panel )
@@ -777,21 +717,6 @@ function RefreshSkin()
 			panel:SetTextColor( self.colCategoryTextInactive )
 		end
 		
-	end
-
-	/*---------------------------------------------------------
-		CategoryHeader
-	---------------------------------------------------------*/
-	function SKIN:PaintCollapsibleCategory( panel )
-		
-		draw.RoundedBox( 4, 0, 0, panel:GetWide(), panel:GetTall(), self.colCollapsibleCategory )
-		
-	end
-
-	function SKIN:PaintCategoryList( panel, w, h )
-
-		self.tex.CategoryList.Outer( 0, 0, w, h );
-
 	end
 
 	/*---------------------------------------------------------

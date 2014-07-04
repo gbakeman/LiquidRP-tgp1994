@@ -442,15 +442,6 @@ end
 
 vgui.Register( "LDRPSpawnMenu", PANEL, "EditablePanel" )
 
---[[function GM:OnSpawnMenuClose()
-	if LDRP.Opened then
-		for k,v in pairs(LDRP.Opened) do
-			if v:IsValid() then v:Close() end
-		end
-		LDRP.Opened = nil
-	end
-end]]
-
 --[[Creates the LDRP spawn menu GUI.
 	This function wasn't in the original LDRP code,
 	but I figure making this act more like the default

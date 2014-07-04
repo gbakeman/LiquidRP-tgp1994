@@ -12,7 +12,7 @@ function LDRP.UpgradeSkill(ply,cmd,args)
 				ply:LiquidChat("SKILLS", Color(0,0,200), "You have the max level for this skill!")
 				return
 			end
-			if ply:CanAfford(cost) then
+			if ply:canAfford(cost) then
 				ply:LiquidChat("SKILLS", Color(0,0,200), "Bought level " .. nextlvl .. " " .. args[1] .. " for $" .. cost)
 				ply:addMoney(-cost)
 				ply:GiveLevel(args[1],1)
