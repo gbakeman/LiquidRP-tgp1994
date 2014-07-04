@@ -138,42 +138,6 @@ function meta:DoPropertyTax()
 	end
 end
 
-function meta:DropDRPWeapon(weapon)
-	if GAMEMODE.Config.restrictdrop then
-		local found = false
-		for k,v in pairs(CustomShipments) do
-			if v.entity == weapon:GetClass() then
-				found = true
-			break
-		end
-	end
-
-	if not found then return end
-	end
-
-	local ammo = self:GetAmmoCount(weapon:GetPrimaryAmmoType())
-	self:DropWeapon(weapon) -- Drop it so the model isn't the viewmodel
-
-	local ent = ents.Create("spawned_weapon")
-	local model = (weapon:GetModel() == "models/weapons/v_physcannon.mdl" and "models/weapons/w_physics.mdl") or weapon:GetModel()
-
-	ent.ShareGravgun = true
-	ent:SetPos(self:GetShootPos() + self:GetAimVector() * 30)
-	ent:SetModel(model)
-	ent:SetSkin(weapon:GetSkin())
-	ent.weaponclass = weapon:GetClass()
-	ent.nodupe = true
-	ent.clip1 = weapon:Clip1()
-	ent.clip2 = weapon:Clip2()
-	ent.ammoadd = ammo
-
-	self:RemoveAmmo(ammo, weapon:GetPrimaryAmmoType())
-
-	ent:Spawn()
-
-	weapon:Remove()
-end
-
 --[[---------------------------------------------------------------------------
 Player:IsWalking
 This determines if the player's current animation is walking.

@@ -21,6 +21,28 @@ function GM:getVehicleCost(ply, ent)
 	return GAMEMODE.Config.vehiclecost ~= 0 and  GAMEMODE.Config.vehiclecost or 40
 end
 
+function GM:canDropWeapon(ply, weapon)
+	if not IsValid(weapon) then return false end
+	local class = string.lower(weapon:GetClass())
+	local team = ply:Team()
+
+	if not GAMEMODE.Config.dropspawnedweapons then
+	if RPExtraTeams[team] and table.HasValue(RPExtraTeams[team].weapons, class) then return false end
+	end
+
+	if self.Config.DisallowDrop[class] then return false end
+
+	if not GAMEMODE.Config.restrictdrop then return true end
+
+	for k,v in pairs(CustomShipments) do
+		if v.entity ~= class then continue end
+
+		return true
+	end
+
+	return false
+end
+
 function GM:ShowTeam(ply)
 end
 

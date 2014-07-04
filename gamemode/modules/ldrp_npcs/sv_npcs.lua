@@ -324,7 +324,7 @@ function LDRP.StoreCMD(ply,cmd,args)
 	
 	if Type == "buy" then
 		if ply:GetPos():Distance(LDRP_SH.ShopPoses[ItemTbl.NPC]) < 500 then
-			if ply:CanAfford(ItemTbl.Cost) then
+			if ply:canAfford(ItemTbl.Cost) then
 				if ply:CanCarry(Item) then
 					ply:LiquidChat("GAME", Color(0,200,200), "Purchased a " .. Item .. " for $" .. ItemTbl.Cost)
 					ply:AddItem(Item,1)
