@@ -119,7 +119,7 @@ function LDRP.SetNPCPos(ply,cmd,args)
 	ply:ChatPrint(Type.." was created.")
 	local serializedpos = pos.X..","..pos.Y..","..pos.Z
 	local serializedang = ang.Pitch..","..ang.Yaw..","..ang.Roll
-	MySQLite.query([[INSERT INTO "..Prefix.."_npc_poses (mapname, name, position, angle)
+	MySQLite.query([[INSERT INTO ]]..Prefix..[[_npc_poses (mapname, name, position, angle)
 		VALUES ("]] .. game.GetMap() .. 
 		[[", "]] .. Type ..
 		[[", "]] .. serializedpos ..
