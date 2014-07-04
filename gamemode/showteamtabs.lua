@@ -889,8 +889,8 @@ function SkinsTab()
 			local OldP = Skin.Paint
 			Skin.Paint = function(s)
 				local TW,TH = s:GetSize()
-				OldP(s)
-				draw.SimpleTextOutlined(v.Name,"Trebuchet24",40,TH*.5,Color(255,255,255,255),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
+				OldP(s, TW, TH)
+				draw.SimpleTextOutlined(v.Name,"Trebuchet24",40,TH*.5, Color(255,255,255,255),TEXT_ALIGN_LEFT,TEXT_ALIGN_CENTER, 2, Color(0,0,0,255) )
 			end
 			local Icon = vgui.Create("DImage",Skin)
 			Icon:SetPos(7,12)
@@ -899,7 +899,7 @@ function SkinsTab()
 			
 			timer.Simple(.1,function()
 				local Reset = vgui.Create("DButton",Skin)
-				Reset:SetSize(32,32)
+				Reset:SetSize(64,32)
 				Reset:SetText("Set")
 				Reset.DoClick = function(self)
 					LDRP_Theme.CurrentSkin = k
@@ -914,7 +914,7 @@ function SkinsTab()
 					Reset:SetText("Selected")
 					Disabled = Reset
 				end
-				Reset.Think = function() Reset:SetPos(Skin:GetWide()-36,4) end
+				Reset.Think = function() Reset:SetPos(Skin:GetWide() - 68, 4) end
 				if LDRP_Theme.CurrentSkin == k then
 					Disabled = Reset
 					Reset:SetDisabled(true)
