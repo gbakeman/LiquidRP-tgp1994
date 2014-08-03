@@ -66,68 +66,68 @@ DarkRP.getIncompleteChatCommands = fn.Curry(fn.Filter, 3)(fn.Compose{fn.Not, che
 Chat commands
 ---------------------------------------------------------------------------*/
 DarkRP.declareChatCommand{
-	command = "pm",
+	command = "/pm",
 	description = "Send a private message to someone.",
 	delay = 1.5
 }
 
 DarkRP.declareChatCommand{
-	command = "w",
+	command = "/w",
 	description = "Say something in whisper voice.",
 	delay = 1.5
 }
 
 DarkRP.declareChatCommand{
-	command = "y",
+	command = "/y",
 	description = "Yell something out loud.",
 	delay = 1.5
 }
 
 DarkRP.declareChatCommand{
-	command = "me",
+	command = "/me",
 	description = "Chat roleplay to say you're doing things that you can't show otherwise.",
 	delay = 1.5
 }
 
 DarkRP.declareChatCommand{
-	command = "/",
+	command = "//",
 	description = "Global server chat.",
 	delay = 1.5
 }
 
 DarkRP.declareChatCommand{
-	command = "a",
+	command = "/a",
 	description = "Global server chat.",
 	delay = 1.5
 }
 
 DarkRP.declareChatCommand{
-	command = "ooc",
+	command = "/ooc",
 	description = "Global server chat.",
 	delay = 1.5
 }
 
 DarkRP.declareChatCommand{
-	command = "advert",
+	command = "/advert",
 	description = "Advertise something to everyone in the server.",
 	delay = 1.5
 }
 
 DarkRP.declareChatCommand{
-	command = "broadcast",
+	command = "/broadcast",
 	description = "Broadcast something as a mayor.",
 	delay = 1.5,
 	condition = plyMeta.isMayor
 }
 
 DarkRP.declareChatCommand{
-	command = "channel",
+	command = "/channel",
 	description = "Tune into a radio channel.",
 	delay = 1.5
 }
 
 DarkRP.declareChatCommand{
-	command = "radio",
+	command = "/radio",
 	description = "Say something through the radio.",
 	delay = 1.5
 }
@@ -141,5 +141,101 @@ DarkRP.declareChatCommand{
 DarkRP.declareChatCommand{
 	command = "credits",
 	description = "Send the DarkRP credits to someone.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "rpname",
+	description = "Change your roleplay name.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "/cophelp",
+	description = "Displays the cop help window.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "/x",
+	description = "Not sure yet, will update this when i find it.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "buyshipment",
+	description = "Buys a shipment of something.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "buy",
+	description = "Buy something.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "buyvehicle",
+	description = "Buy a vehicle.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "buyammo",
+	description = "Buy some ammo.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "/holster",
+	description = "Holster the item in your hands.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "/help",
+	description = "Shows the help menu.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "setprice",
+	description = "Sets the price of the item you are looking at.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "/mayorhelp",
+	description = "Displays the mayor help window.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "nick",
+	description = "Change your roleplay nickname.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "/adminhelp",
+	description = "Displays the admin help window.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "/mobbosshelp",
+	description = "Displays the mob boss help window.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "name",
+	description = "Sets the name of the item you are looking at.",
+	delay = 1.5
+}
+
+DarkRP.declareChatCommand{
+	command = "price",
+	description = "Set the price of the item you are looking at.",
 	delay = 1.5
 }
