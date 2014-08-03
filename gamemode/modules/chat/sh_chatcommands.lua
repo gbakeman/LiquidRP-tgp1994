@@ -187,7 +187,7 @@ DarkRP.declareChatCommand{
 }
 
 DarkRP.declareChatCommand{
-	command = "/holster",
+	command = "holster",
 	description = "Holster the item in your hands.",
 	delay = 1.5
 }

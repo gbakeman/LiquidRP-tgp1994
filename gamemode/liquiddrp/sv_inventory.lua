@@ -178,6 +178,7 @@ concommand.Add("_inven",LDRP.ItemCMD)
 
 function LDRP.HolsterWep(ply,cmd,args)
 	if !ply:Alive() then return "" end
+
 	if ply:Team() == TEAM_POLICE or ply:Team() == TEAM_CHIEF then
 		ply:LiquidChat("INVENTORY", Color(0,150,200), "Can't holster weapons as cop (because of free gun!)")
 		return ""
@@ -188,7 +189,7 @@ function LDRP.HolsterWep(ply,cmd,args)
 		ply:LiquidChat("INVENTORY", Color(0,150,200), "Can't holster grenades (duplication glitch)")
 		return ""
 	end
-	
+
 	if LDRP_SH.AllItems[Type] then
 		if !ply:CanCarry(Type) then
 			ply:LiquidChat("INVENTORY", Color(0,150,200), "Free up inventory space before holstering this.")
@@ -197,7 +198,7 @@ function LDRP.HolsterWep(ply,cmd,args)
 		ply:StripWeapon(Type)
 		ply:AddItem(Type,1)
 		ply:LiquidChat("INVENTORY", Color(0,150,200), "You have holstered your weapon into your inventory.")
-		
+
 		local ammotype = ply:GetActiveWeapon():GetPrimaryAmmoType()
 		local ammo = ply:GetAmmoCount(ammotype)
 		ply:RemoveAmmo(ammo, ammotype)
@@ -207,4 +208,4 @@ function LDRP.HolsterWep(ply,cmd,args)
 	
 	return ""
 end
-DarkRP.defineChatCommand("/holster",LDRP.HolsterWep)
+DarkRP.defineChatCommand("holster",LDRP.HolsterWep)
