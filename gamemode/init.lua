@@ -2,6 +2,7 @@ GM.Version = "2"
 GM.Name = "LiquidRP"
 GM.Author = "DarkRP Creators, Jackool and Deadman123/Derp, TGP1994"
 
+print"gamemode loaded" -- incase you need to reload it, you know it was.
 CUR = "$" --Removed?
 DeriveGamemode("sandbox")
 
@@ -151,7 +152,7 @@ LoadLiquidDarkRP() -- Load before FPP and FAdmin because they're annoying
 local BlockedModelsExist = sql.QueryValue("SELECT COUNT(*) FROM FPP_BLOCKEDMODELS1;") ~= false
 if not BlockedModelsExist then
 	sql.Query("CREATE TABLE IF NOT EXISTS FPP_BLOCKEDMODELS1(model VARCHAR(140) NOT NULL PRIMARY KEY);")
-	include("fpp/fpp_defaultblockedmodels.lua") -- Load the default blocked models
+	include("fpp/sv_defaultblockedmodels.lua") -- Load the default blocked models
 end
 AddCSLuaFile("fpp/sh_cppi.lua")
 AddCSLuaFile("fpp/sh_settings.lua")
