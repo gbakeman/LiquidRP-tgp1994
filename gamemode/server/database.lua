@@ -19,7 +19,7 @@ if RP_MySQLConfig.EnableMySQL then
 	print"looking for mysqloo"
 	require("mysqloo")
 	mysqlOO = mysqloo
-	print"mysqloo found?"
+	print"mysqloo found."
 end
 
 module("MySQLite")
