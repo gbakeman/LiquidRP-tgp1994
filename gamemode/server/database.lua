@@ -15,14 +15,12 @@ local GAMEMODE = GM
 local mysqlOO
 
 local RP_MySQLConfig = RP_MySQLConfig
-if ( SERVER ) then
-	if RP_MySQLConfig.EnableMySQL then
-		print"looking for mysqloo"
-		require("mysqloo")
-		mysqlOO = mysqloo
-		print"mysqloo found?"
-	end
-else return print"its client" end	
+if RP_MySQLConfig.EnableMySQL then
+	print"looking for mysqloo"
+	require("mysqloo")
+	mysqlOO = mysqloo
+	print"mysqloo found?"
+end
 
 module("MySQLite")
 
@@ -47,7 +45,6 @@ local queuedQueries
 
 function begin()
 	if not CONNECTED_TO_MYSQL then
-		print"Connected to database!"
 		sql.Begin()
 	else
 		if queuedQueries then
