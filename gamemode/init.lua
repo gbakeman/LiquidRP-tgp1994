@@ -62,7 +62,6 @@ include("libraries/disjointset.lua")
 include("sh_commands.lua")
 
 include("ammotypes.lua")
-include("sv_gamemode_functions.lua")
 include("main.lua")
 include("player.lua")
 include("util.lua")
@@ -160,8 +159,12 @@ AddCSLuaFile("fpp/client/fpp_menu.lua")
 AddCSLuaFile("fpp/client/fpp_hud.lua")
 AddCSLuaFile("fpp/client/fpp_buddies.lua")
 if UseFadmin then
-	AddCSLuaFile("fadmin_darkrp.lua")
-	include("fadmin_darkrp.lua")
+	AddCSLuaFile("fadmin/cl_fadmin.lua")
+	AddCSLuaFile("fadmin/cl_fadmin_darkrp.lua")
+	AddCSLuaFile("fadmin/sh_fadmin_darkrp.lua")	
+	include("fadmin/sh_fadmin_darkrp.lua")
+	include("fadmin/sv_fadmin.lua")
+	include("fadmin/sv_fadmin_sql.lua")
 end
 if UseFPP then
 	include("fpp/sh_settings.lua")
@@ -170,6 +173,8 @@ if UseFPP then
 	include("fpp/server/fpp_core.lua")
 	include("fpp/server/fpp_antispam.lua")
 end
+
+include("sv_gamemode_functions.lua")
 
 local function GetAvailableVehicles(ply)
 	if not ply:IsAdmin() then return end
