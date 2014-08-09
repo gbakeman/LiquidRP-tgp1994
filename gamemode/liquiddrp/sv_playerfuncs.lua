@@ -7,7 +7,7 @@ util.AddNetworkString( "SendEXP" )
 
 function meta:UIDToFile(fil)
 	if self and self:IsValid() and fil then
-		return "LiquidDRP/" .. fil .. "_" .. self:UniqueID()
+		return "liquiddrp/" .. fil .. "_" .. self:UniqueID()
 	end
 end
 
@@ -16,9 +16,9 @@ function meta:LiquidFile(fil,load)
 		local UID = self:UniqueID()
 		if !UID then return false end
 		if load then
-			return file.Read("LiquidDRP/" .. fil .. "_" .. UID .. ".txt", "DATA")
+			return file.Read("liquiddrp/" .. fil .. "_" .. UID .. ".txt", "DATA")
 		else
-			return file.Exists("LiquidDRP/" .. fil .. "_" .. UID .. ".txt", "DATA")
+			return file.Exists("liquiddrp/" .. fil .. "_" .. UID .. ".txt", "DATA")
 		end
 	end
 end
@@ -26,15 +26,15 @@ end
 local SaveTables = {"Inventory","Character"}
 function meta:SavePlayer(savewhat)
 	if self and self:IsValid() and self.Inited then
-		if !file.IsDir( "LiquidDRP", "DATA" ) then file.CreateDir( "LiquidDRP" ) end
+		if !file.IsDir( "liquiddrp", "DATA" ) then file.CreateDir( "liquiddrp" ) end
 		if savewhat and self.savewat != nil then
 			if self[savewhat] then
-				file.Write("LiquidDRP/" .. savewhat .. "_" .. self:UniqueID() .. ".txt", von.serialize(self[savewhat]))
+				file.Write("liquiddrp/" .. savewhat .. "_" .. self:UniqueID() .. ".txt", von.serialize(self[savewhat]))
 			end
 		else
 			for k,v in pairs(SaveTables) do
 				if self[v] then
-					file.Write("LiquidDRP/" .. v .. "_" .. self:UniqueID() .. ".txt", von.serialize(self[v]))
+					file.Write("liquiddrp/" .. v .. "_" .. self:UniqueID() .. ".txt", von.serialize(self[v]))
 				end
 			end
 		end
