@@ -1,5 +1,5 @@
 -- Uncomment this to use fadmin
-UseFadmin = true
+UseFadmin = false -- disabled until I can fix the linux bug
 
 UseFPP = true -- Use falco's prop protection?
 
